@@ -6,11 +6,29 @@ import ora from "ora";
 import inquirer from "inquirer";
 import fs from "node:fs/promises";
 import path from "path";
-import { execSync } from "child_process";
+import { execSync, spawn } from "child_process";
 import os from "os";
 import crypto from "crypto";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
+
+const IS_TESTNET = process.argv.includes("--testnet");
+
+const NETWORK = IS_TESTNET
+  ? {
+      name: "Monad Testnet",
+      rpc: "https://monad-testnet.drpc.org",
+      chainId: 10143,
+      currency: "MON",
+      explorer: "https://testnet.monadexplorer.com",
+    }
+  : {
+      name: "Monad Mainnet",
+      rpc: "https://monad.drpc.org",
+      chainId: 143,
+      currency: "MON",
+      explorer: "https://monadexplorer.com",
+    };
 
 const OPENCLAW_DIR = path.join(os.homedir(), ".openclaw");
 const OPENCLAW_JSON = path.join(OPENCLAW_DIR, "openclaw.json");
@@ -44,13 +62,16 @@ const SCRIPT_FILES = [
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function banner() {
+  const networkLabel = IS_TESTNET
+    ? chalk.yellow("[TESTNET]")
+    : chalk.green("[MAINNET]");
   console.log(
     chalk.bold.magenta(`
  ╔═══════════════════════════════════════╗
  ║         FoMA v3 Agent Setup           ║
  ║   AI agents forming a DAO on Monad    ║
  ╚═══════════════════════════════════════╝
-`)
+`) + `  ${networkLabel} ${chalk.dim(NETWORK.name)} (Chain ${NETWORK.chainId})\n`
   );
 }
 
@@ -129,6 +150,38 @@ async function pathExists(filePath: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+// ─── Balance Monitor ─────────────────────────────────────────────────────────
+
+async function monitorBalance(address: string): Promise<void> {
+  const provider = new ethers.JsonRpcProvider(NETWORK.rpc);
+
+  const printBalance = async () => {
+    try {
+      const balance = await provider.getBalance(address);
+      const mon = ethers.formatEther(balance);
+      const timestamp = new Date().toLocaleTimeString();
+      console.log(
+        chalk.dim(`  [${timestamp}]`) +
+          chalk.white(` ${address.slice(0, 6)}...${address.slice(-4)}`) +
+          chalk.cyan(` ${mon} MON`) +
+          chalk.dim(` (${NETWORK.name})`)
+      );
+    } catch (err: any) {
+      console.log(
+        chalk.dim(`  [${new Date().toLocaleTimeString()}]`) +
+          chalk.red(` Failed to fetch balance: ${err.message}`)
+      );
+    }
+  };
+
+  // Print immediately, then every 30s
+  await printBalance();
+
+  return new Promise(() => {
+    setInterval(printBalance, 30_000);
+  });
 }
 
 // ─── Update Mode ─────────────────────────────────────────────────────────────
@@ -331,8 +384,12 @@ async function main() {
   spinner.text = "Writing .env...";
 
   // Step 4: Write .env
-  const envContent = `MONAD_MAINNET_PRIVATE_KEY=${privateKey}
-MONAD_MAINNET_ADDRESS=${address}
+  const envPrefix = IS_TESTNET ? "MONAD_TESTNET" : "MONAD_MAINNET";
+  const envContent = `${envPrefix}_PRIVATE_KEY=${privateKey}
+${envPrefix}_ADDRESS=${address}
+${envPrefix}_RPC_URL=${NETWORK.rpc}
+${envPrefix}_CHAIN_ID=${NETWORK.chainId}
+NETWORK_MODE=${IS_TESTNET ? "testnet" : "mainnet"}
 `;
   await fs.writeFile(path.join(workspacePath, ".env"), envContent, {
     mode: 0o600,
@@ -430,6 +487,7 @@ MONAD_MAINNET_ADDRESS=${address}
 
   console.log(chalk.white("  Agent ID:    ") + chalk.cyan(agentId));
   console.log(chalk.white("  Address:     ") + chalk.cyan(address));
+  console.log(chalk.white("  Network:     ") + chalk.cyan(NETWORK.name));
   console.log(chalk.white("  Workspace:   ") + chalk.cyan(workspacePath));
   console.log(chalk.white("  Config:      ") + chalk.cyan(OPENCLAW_JSON));
 
@@ -441,10 +499,13 @@ Next Steps:
 
   console.log(
     chalk.white(
-      `  1. Fund your agent with ${chalk.bold("0.5 MON")} on Monad mainnet`
+      `  1. Fund your agent with ${chalk.bold("0.5 MON")} on ${NETWORK.name}`
     )
   );
   console.log(chalk.dim("     Send MON to: ") + chalk.cyan(address));
+  if (IS_TESTNET) {
+    console.log(chalk.dim("     Faucet: https://testnet.monadexplorer.com/faucet"));
+  }
   console.log();
   console.log(
     chalk.white(
@@ -457,14 +518,6 @@ Next Steps:
     )
   );
   console.log();
-  console.log(
-    chalk.white(
-      `  3. Start your agent with OpenClaw:`
-    )
-  );
-  console.log(chalk.dim(`     openclaw start ${agentId}`));
-  console.log();
-
   // TODO: Step 9 - Register with backend API
   // POST /agents/register with EIP-191 signature
   // Will be implemented once the backend API is deployed
@@ -481,6 +534,34 @@ Next Steps:
   console.log(
     chalk.dim(`     Stored securely in: ${workspacePath}/.env\n`)
   );
+
+  // Step 9: Ask to start agent
+  const { startAgent } = await inquirer.prompt([
+    {
+      type: "confirm",
+      name: "startAgent",
+      message: "Start your agent now in the background?",
+      default: true,
+    },
+  ]);
+
+  if (startAgent) {
+    const child = spawn("openclaw", ["start", agentId], {
+      detached: true,
+      stdio: "ignore",
+    });
+    child.unref();
+    console.log(chalk.green(`\n✓ Agent ${agentId} started in the background`));
+    console.log(chalk.dim(`  Stop with: openclaw stop ${agentId}`));
+
+    // Start balance monitor
+    console.log(chalk.dim("  Monitoring balance every 30s (Ctrl+C to exit)\n"));
+    await monitorBalance(address);
+  } else {
+    console.log(
+      chalk.dim(`\n  Start later with: openclaw start ${agentId}\n`)
+    );
+  }
 }
 
 main().catch((err) => {
