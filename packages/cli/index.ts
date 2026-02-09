@@ -249,7 +249,23 @@ async function updateWorkspace() {
     spinner.succeed("All templates and scripts updated successfully");
   }
 
-  console.log(chalk.dim(`\n  Workspace: ${workspacePath}\n`));
+  console.log(chalk.dim(`\n  Workspace: ${workspacePath}`));
+
+  // Restart agent if running
+  const agentId = workspaceName.replace("workspace-", "");
+  try {
+    execSync(`openclaw stop ${agentId}`, { stdio: "ignore" });
+    console.log(chalk.yellow(`  Stopped agent ${agentId}`));
+  } catch {
+    // Agent wasn't running, that's fine
+  }
+
+  const child = spawn("openclaw", ["start", agentId], {
+    detached: true,
+    stdio: "ignore",
+  });
+  child.unref();
+  console.log(chalk.green(`  ✓ Agent ${agentId} restarted with updated files\n`));
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
