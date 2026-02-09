@@ -39,7 +39,6 @@ const SCRIPT_FILES = [
   "scripts/trading/buy-foma.ts",
   "scripts/trading/sell-foma.ts",
   "scripts/trading/check-balance.ts",
-  "scripts/betting/resolve.ts",
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -132,10 +131,124 @@ async function pathExists(filePath: string): Promise<boolean> {
   }
 }
 
+// ─── Update Mode ─────────────────────────────────────────────────────────────
+
+async function updateWorkspace() {
+  banner();
+  console.log(chalk.cyan("Updating templates and scripts...\n"));
+
+  // Find existing workspaces
+  const openclawDir = OPENCLAW_DIR;
+  if (!(await pathExists(openclawDir))) {
+    console.log(chalk.red("No OpenClaw directory found. Run setup first."));
+    process.exit(1);
+  }
+
+  let entries: string[];
+  try {
+    entries = await fs.readdir(openclawDir);
+  } catch {
+    console.log(chalk.red("Could not read OpenClaw directory."));
+    process.exit(1);
+  }
+
+  const workspaces = entries.filter((e) => e.startsWith("workspace-foma-"));
+
+  if (workspaces.length === 0) {
+    console.log(chalk.red("No FoMA workspaces found. Run setup first."));
+    process.exit(1);
+  }
+
+  let workspaceName: string;
+  if (workspaces.length === 1) {
+    workspaceName = workspaces[0];
+  } else {
+    const { selected } = await inquirer.prompt([
+      {
+        type: "list",
+        name: "selected",
+        message: "Which workspace do you want to update?",
+        choices: workspaces,
+      },
+    ]);
+    workspaceName = selected;
+  }
+
+  const workspacePath = path.join(openclawDir, workspaceName);
+  const spinner = ora("Fetching latest templates from GitHub...").start();
+
+  const allFiles = [...TEMPLATE_FILES, ...SCRIPT_FILES];
+  const errors: string[] = [];
+
+  for (const file of allFiles) {
+    try {
+      const dest = path.join(workspacePath, file);
+      await fetchFileFromGitHub(file, dest);
+    } catch (err: any) {
+      errors.push(`  - ${file}: ${err.message}`);
+    }
+  }
+
+  if (errors.length > 0) {
+    spinner.warn("Some files could not be fetched:");
+    console.log(chalk.yellow(errors.join("\n")));
+  } else {
+    spinner.succeed("All templates and scripts updated successfully");
+  }
+
+  console.log(chalk.dim(`\n  Workspace: ${workspacePath}\n`));
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
+  // Handle --update flag
+  if (process.argv.includes("--update")) {
+    await updateWorkspace();
+    return;
+  }
+
   banner();
+
+  // Check for existing workspaces to prevent duplicates / key loss
+  if (await pathExists(OPENCLAW_DIR)) {
+    try {
+      const entries = await fs.readdir(OPENCLAW_DIR);
+      const workspaces = entries.filter((e) => e.startsWith("workspace-foma-"));
+
+      if (workspaces.length > 0) {
+        console.log(
+          chalk.yellow(
+            `Existing workspace found: ${workspaces.join(", ")}\n`
+          )
+        );
+        const { action } = await inquirer.prompt([
+          {
+            type: "list",
+            name: "action",
+            message: "What would you like to do?",
+            choices: [
+              { name: "Update templates and scripts", value: "update" },
+              { name: "Set up a new agent (new wallet)", value: "new" },
+              { name: "Cancel", value: "cancel" },
+            ],
+          },
+        ]);
+
+        if (action === "update") {
+          await updateWorkspace();
+          return;
+        }
+        if (action === "cancel") {
+          console.log(chalk.dim("Setup cancelled.\n"));
+          process.exit(0);
+        }
+        // action === "new" — continue with full setup
+      }
+    } catch {
+      // Directory not readable, continue with setup
+    }
+  }
 
   // Step 1: Check OpenClaw
   console.log(chalk.cyan("Checking prerequisites...\n"));
