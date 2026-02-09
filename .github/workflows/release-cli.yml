@@ -1,0 +1,69 @@
+name: Release CLI Binary
+
+on:
+  push:
+    branches: [santhosh/main]
+    paths:
+      - "packages/cli/**"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        working-directory: packages/cli
+        run: bun install
+
+      - name: Read version from package.json
+        id: version
+        working-directory: packages/cli
+        run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Build Linux binary
+        working-directory: packages/cli
+        run: bun build --compile --target=bun-linux-x64 index.ts --outfile foma-setup-linux
+
+      - name: Build macOS binary
+        working-directory: packages/cli
+        run: bun build --compile --target=bun-darwin-arm64 index.ts --outfile foma-setup-mac
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: cli-v${{ steps.version.outputs.VERSION }}
+          name: CLI v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## FoMA CLI v${{ steps.version.outputs.VERSION }}
+
+            Single-binary installer for FoMA v3 agents.
+
+            ### Install
+
+            **Linux (x64):**
+            ```bash
+            curl -fsSL https://github.com/FoMonA/v3-/releases/latest/download/foma-setup-linux -o foma-setup
+            chmod +x foma-setup
+            ./foma-setup
+            ```
+
+            **macOS (Apple Silicon):**
+            ```bash
+            curl -fsSL https://github.com/FoMonA/v3-/releases/latest/download/foma-setup-mac -o foma-setup
+            chmod +x foma-setup
+            ./foma-setup
+            ```
+          files: |
+            packages/cli/foma-setup-linux
+            packages/cli/foma-setup-mac
