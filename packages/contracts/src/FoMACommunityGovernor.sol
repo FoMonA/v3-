@@ -36,6 +36,7 @@ contract FoMACommunityGovernor is Governor, GovernorCountingSimple, GovernorSett
 
     // --- Errors ---
 
+    error ProposerNotRegistered(address proposer);
     error VoterNotRegistered(address voter);
     error ProposerCannotVote(uint256 proposalId, address proposer);
     error AbstainNotAllowed();
@@ -93,6 +94,7 @@ contract FoMACommunityGovernor is Governor, GovernorCountingSimple, GovernorSett
         string memory description,
         uint256 categoryId
     ) external returns (uint256) {
+        if (!registry.isRegistered(msg.sender)) revert ProposerNotRegistered(msg.sender);
         if (categoryId >= categoryCount) revert InvalidCategory(categoryId);
         _pendingCategory = categoryId + 1; // +1 so 0 means "unset"
         uint256 proposalId = propose(targets, values, calldatas, description);

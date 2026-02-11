@@ -8,8 +8,8 @@ set -euo pipefail
 #   ./interact.sh balance       <ADDRESS>
 #   ./interact.sh human-bet    <PROPOSAL_ID> <yes|no> [AMOUNT] [HUMAN_KEY]
 #   ./interact.sh agent-vote   <PROPOSAL_ID> [for|against]  [AGENT_KEY]
-#   ./interact.sh agent-propose <DESCRIPTION> <CATEGORY_ID> [AGENT_KEY]
-#   ./interact.sh agent-propose <DESCRIPTION> new <CATEGORY_NAME> [AGENT_KEY]
+#   ./interact.sh agent-propose <TITLE> <BODY> <CATEGORY_ID> [AGENT_KEY]
+#   ./interact.sh agent-propose <TITLE> <BODY> new <CATEGORY_NAME> [AGENT_KEY]
 #   ./interact.sh setup-agent  <AGENT_ADDR>
 #   ./interact.sh fund         <TARGET_ADDR> [FOMA_AMOUNT] [MON_MILLIETHER]
 #   ./interact.sh state        <PROPOSAL_ID>
@@ -56,8 +56,8 @@ Commands:
   new-wallet                                          Generate a new wallet
   fund          <ADDR> [FOMA] [MON_milli]             Fund wallet (MON + FOMA)
   setup-agent   <ADDR>                                Register + fund agent
-  agent-propose <DESC> <CATEGORY_ID> [AGENT_KEY]      Agent creates a proposal
-  agent-propose <DESC> new <NAME> [AGENT_KEY]         Propose adding a new category
+  agent-propose <TITLE> <BODY> <CAT_ID> [AGENT_KEY]   Agent creates a proposal
+  agent-propose <TITLE> <BODY> new <NAME> [KEY]       Propose adding a new category
   agent-vote    <PROPOSAL_ID> [for|against] [KEY]     Agent votes
   human-bet     <PROPOSAL_ID> <yes|no> [AMT] [KEY]   Human places a bet
   state         <PROPOSAL_ID>                         Check proposal state
@@ -70,8 +70,8 @@ Examples:
   ./interact.sh new-wallet
   ./interact.sh fund 0xABC...
   ./interact.sh setup-agent 0xABC...
-  ./interact.sh agent-propose "Integrate Chainlink VRF" 0
-  ./interact.sh agent-propose "We need DeFi" new "DeFi"
+  ./interact.sh agent-propose "Integrate Chainlink VRF" "Replace insecure blockhash randomness" 0
+  ./interact.sh agent-propose "Add DeFi Category" "We need a DeFi category for DeFi proposals" new "DeFi"
   ./interact.sh agent-vote 0xa56f... for
   ./interact.sh human-bet 0xa56f... yes 10
   ./interact.sh state 0xa56f...
@@ -236,12 +236,17 @@ cmd_agent_vote() {
 }
 
 cmd_agent_propose() {
-    local description="${1:?Missing DESCRIPTION}"
-    local category_or_new="${2:?Missing CATEGORY_ID (0-4) or 'new'}"
+    local title="${1:?Missing TITLE}"
+    local body="${2:?Missing BODY}"
+    local category_or_new="${3:?Missing CATEGORY_ID (0-4) or 'new'}"
+
+    # Description format: "Title\nBody" (indexer splits first line as title)
+    local description
+    description=$(printf '%s\n%s' "$title" "$body")
 
     # Two modes:
-    #   agent-propose "description" <CATEGORY_ID> [AGENT_KEY]        -- regular proposal
-    #   agent-propose "description" new <CATEGORY_NAME> [AGENT_KEY]  -- new category proposal
+    #   agent-propose "title" "body" <CATEGORY_ID> [AGENT_KEY]            -- regular proposal
+    #   agent-propose "title" "body" new <CATEGORY_NAME> [AGENT_KEY]      -- new category proposal
     local is_new_category=false
     local category_id
     local new_category_name=""
@@ -249,12 +254,12 @@ cmd_agent_propose() {
 
     if [[ "$category_or_new" == "new" ]]; then
         is_new_category=true
-        new_category_name="${3:?Missing CATEGORY_NAME}"
-        agent_key="${4:-${AGENT_KEY:-}}"
+        new_category_name="${4:?Missing CATEGORY_NAME}"
+        agent_key="${5:-${AGENT_KEY:-}}"
         category_id=0  # tag new-category proposals under Tech
     else
         category_id="$category_or_new"
-        agent_key="${3:-${AGENT_KEY:-}}"
+        agent_key="${4:-${AGENT_KEY:-}}"
     fi
 
     if [[ -z "$agent_key" ]]; then
@@ -268,13 +273,15 @@ cmd_agent_propose() {
     if [[ "$is_new_category" == "true" ]]; then
         echo "=== AgentPropose (New Category) ==="
         echo "Agent:        $agent_addr"
-        echo "Description:  $description"
+        echo "Title:        $title"
+        echo "Body:         $body"
         echo "New Category: $new_category_name"
     else
         echo "=== AgentPropose ==="
-        echo "Agent:       $agent_addr"
-        echo "Description: $description"
-        echo "Category:    $category_id"
+        echo "Agent:    $agent_addr"
+        echo "Title:    $title"
+        echo "Body:     $body"
+        echo "Category: $category_id"
     fi
 
     # Step 1: Approve Governor to spend FOMA (up to 100 FOMA proposal cost)

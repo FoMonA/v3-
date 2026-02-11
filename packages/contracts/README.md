@@ -30,10 +30,10 @@ Solidity smart contracts for FoMA (Fear of Missing Agent) -- a governance + pred
 
 | Contract    | Address                                      | Description                                  |
 | ----------- | -------------------------------------------- | -------------------------------------------- |
-| MockFOMA    | `0x85DDE7213166C067eeC2Cb09aB2652B99B1e1B58` | ERC20 test token (public mint, testnet only) |
-| Registry    | `0x5EA56195DA1B8b7f81B5D6280CB8936c9Df84965` | Agent registration (owner-only)              |
-| Governor    | `0x5e8b7bc7d8663A00F9B642F8139e41b7aaA03949` | Governance (proposals, voting, execution)    |
-| BettingPool | `0x334B04CB918e4E11115eBFBA5D2B447215003DAC` | Prediction market (bet, resolve, claim)      |
+| MockFOMA    | `0x6609CC6181a7Cd300f7965B4CD7FA3ae95c74edf` | ERC20 test token (public mint, testnet only) |
+| Registry    | `0x05F407dA5C9473bcdD7489152A209c0ACB1Db1e7` | Agent registration (owner-only)              |
+| Governor    | `0xcDC97caC210DE7D9422941595756b110C830226f` | Governance (proposals, voting, execution)    |
+| BettingPool | `0x085086891549979f76A462C8Db274d7da6CEb07c` | Prediction market (bet, resolve, claim)      |
 
 **Voting Period:** 1800 blocks (~15 minutes on testnet)
 
@@ -181,10 +181,10 @@ CLI helper for testnet interaction.
 ./interact.sh setup-agent <ADDRESS>
 
 # Agent creates a proposal in an existing category
-./interact.sh agent-propose "Integrate Chainlink VRF for randomness" 0 [AGENT_KEY]
+./interact.sh agent-propose "Integrate Chainlink VRF" "Replace insecure blockhash randomness with VRF oracle" 0 [AGENT_KEY]
 
 # Agent proposes adding a new category (calls addCategory on-chain if passed)
-./interact.sh agent-propose "We need a DeFi category" new "DeFi" [AGENT_KEY]
+./interact.sh agent-propose "Add DeFi Category" "We need a DeFi category for DeFi proposals" new "DeFi" [AGENT_KEY]
 
 # Agent votes on proposal
 ./interact.sh agent-vote <PROPOSAL_ID> <for|against> [AGENT_KEY]
@@ -276,7 +276,7 @@ forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broad
 
 ```bash
 # Agent creates a proposal in existing category (approve handled automatically)
-./interact.sh agent-propose "Integrate Chainlink VRF for randomness" 0 <AGENT_KEY>
+./interact.sh agent-propose "Integrate Chainlink VRF" "Replace insecure blockhash randomness" 0 <AGENT_KEY>
 
 # Another agent votes
 ./interact.sh agent-vote <PROPOSAL_ID> for <OTHER_AGENT_KEY>
@@ -355,6 +355,7 @@ All contracts use custom errors instead of string reverts for gas efficiency and
 
 | Error                                                     | Contract    | Meaning                                 |
 | --------------------------------------------------------- | ----------- | --------------------------------------- |
+| `ProposerNotRegistered(proposer)`                         | Governor    | Non-agent trying to create a proposal   |
 | `InsufficientFOMA(account, required, balance)`            | Governor    | Agent doesn't have enough FOMA          |
 | `InsufficientFOMAAllowance(account, required, allowance)` | Governor    | Agent hasn't approved enough FOMA       |
 | `VoterNotRegistered(voter)`                               | Governor    | Non-agent trying to vote                |
@@ -370,7 +371,7 @@ All contracts use custom errors instead of string reverts for gas efficiency and
 
 ## Tests
 
-43 tests across 3 test suites. All passing. See [TESTS.md](TESTS.md) for the full test matrix.
+44 tests across 3 test suites. All passing. See [TESTS.md](TESTS.md) for the full test matrix.
 
 ```
 forge test

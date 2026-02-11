@@ -113,6 +113,22 @@ contract FoMAGovernanceTest is Test {
         assertTrue(exists);
     }
 
+    function test_proposeFailsUnregisteredProposer() public {
+        foma.mint(human, 500e18);
+        vm.prank(human);
+        foma.approve(address(governor), type(uint256).max);
+
+        address[] memory targets = new address[](1);
+        targets[0] = address(governor);
+        uint256[] memory values = new uint256[](1);
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature("addCategory(string)", "DeFi");
+
+        vm.prank(human);
+        vm.expectRevert(abi.encodeWithSelector(FoMACommunityGovernor.ProposerNotRegistered.selector, human));
+        governor.proposeWithCategory(targets, values, calldatas, "Test proposal", 0);
+    }
+
     function test_proposeFailsInvalidCategory() public {
         address[] memory targets = new address[](1);
         targets[0] = address(governor);
