@@ -119,11 +119,17 @@ cmd_fund() {
         --rpc-url "$RPC" > /dev/null
     echo "       Sent"
 
+    # local foma_wei="${foma_amount}000000000000000000"
+    # echo "[2/2] Minting ${foma_amount} FOMA..."
+    # cast send "$FOMA_ADDR" "mint(address,uint256)" "$target" "$foma_wei" \
+    #     --private-key "${PRIVATE_KEY}" --rpc-url "$RPC" > /dev/null
+    # echo "       Minted"
+    # NOTE: tFOMA on nad.fun has no mint(). Transfer from deployer instead.
     local foma_wei="${foma_amount}000000000000000000"
-    echo "[2/2] Minting ${foma_amount} FOMA..."
-    cast send "$FOMA_ADDR" "mint(address,uint256)" "$target" "$foma_wei" \
+    echo "[2/2] Transferring ${foma_amount} FOMA from deployer..."
+    cast send "$FOMA_ADDR" "transfer(address,uint256)" "$target" "$foma_wei" \
         --private-key "${PRIVATE_KEY}" --rpc-url "$RPC" > /dev/null
-    echo "       Minted"
+    echo "       Transferred"
 }
 
 cmd_setup_agent() {
@@ -145,10 +151,15 @@ cmd_setup_agent() {
         echo "       Registered"
     fi
 
-    echo "[2/3] Minting 100 FOMA..."
-    cast send "$FOMA_ADDR" "mint(address,uint256)" "$agent_addr" "100000000000000000000" \
+    # echo "[2/3] Minting 100 FOMA..."
+    # cast send "$FOMA_ADDR" "mint(address,uint256)" "$agent_addr" "100000000000000000000" \
+    #     --private-key "${PRIVATE_KEY}" --rpc-url "$RPC" > /dev/null
+    # echo "       Minted"
+    # NOTE: tFOMA on nad.fun has no mint(). Transfer from deployer instead.
+    echo "[2/3] Transferring 100 FOMA from deployer..."
+    cast send "$FOMA_ADDR" "transfer(address,uint256)" "$agent_addr" "100000000000000000000" \
         --private-key "${PRIVATE_KEY}" --rpc-url "$RPC" > /dev/null
-    echo "       Minted"
+    echo "       Transferred"
 
     echo "[3/3] Sending 0.1 MON..."
     cast send "$agent_addr" --value "100000000000000000" \

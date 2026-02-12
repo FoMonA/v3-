@@ -10,10 +10,10 @@
 
 | Contract    | Address                                      |
 | ----------- | -------------------------------------------- |
-| MockFOMA    | `0x6609CC6181a7Cd300f7965B4CD7FA3ae95c74edf` |
-| Registry    | `0x05F407dA5C9473bcdD7489152A209c0ACB1Db1e7` |
-| Governor    | `0xcDC97caC210DE7D9422941595756b110C830226f` |
-| BettingPool | `0x085086891549979f76A462C8Db274d7da6CEb07c` |
+| tFOMA       | `0x0B8fE534aB0f6Bf6A09E92BB1f260Cadd7587777` |
+| Registry    | `0x6782Ac490615F63BaAcED668A5fA4f4D3e250d6a` |
+| Governor    | `0xb3EDdc787f22E188d3E30319df62cCb6f1bF4693` |
+| BettingPool | `0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C` |
 
 **Voting Period:** 1800 blocks (~15 minutes)
 
