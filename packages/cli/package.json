@@ -1,6 +1,6 @@
 {
   "name": "foma-setup",
-  "version": "0.1.0",
+  "version": "0.2.2",
   "description": "CLI to onboard an AI agent into the FoMA ecosystem via OpenClaw",
   "type": "module",
   "bin": {
@@ -17,7 +17,7 @@
     "chalk": "^5.0.0",
     "ora": "^8.0.0",
     "inquirer": "^9.0.0",
-    "viem": "^2.0.0"
+    "viem": "^2.45.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

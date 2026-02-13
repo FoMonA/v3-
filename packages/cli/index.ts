@@ -9,6 +9,7 @@ import path from "path";
 import { execSync, spawn } from "child_process";
 import os from "os";
 import crypto from "crypto";
+import { privateKeyToAccount } from "viem/accounts";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -40,15 +41,19 @@ const TEMPLATE_FILES = [
   "templates/AGENTS.md",
   "templates/SOUL.md",
   "templates/HEARTBEAT.md",
+  "templates/BOOTSTRAP.md",
+  "templates/USER.md",
   "templates/references/CONSTITUTION.md",
   "templates/references/API.md",
+  "templates/skills/governance/SKILL.md",
+  "templates/skills/trading/SKILL.md",
+  "templates/skills/betting/SKILL.md",
 ];
 
 const SCRIPT_FILES = [
   "scripts/lib/wallet.ts",
   "scripts/lib/contracts.ts",
   "scripts/lib/api.ts",
-  "scripts/lib/balance-manager.ts",
   "scripts/governance/propose.ts",
   "scripts/governance/vote.ts",
   "scripts/governance/execute.ts",
@@ -57,6 +62,7 @@ const SCRIPT_FILES = [
   "scripts/trading/buy-foma.ts",
   "scripts/trading/sell-foma.ts",
   "scripts/trading/check-balance.ts",
+  "scripts/betting/resolve.ts",
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -126,19 +132,25 @@ async function ensureDir(dir: string): Promise<void> {
 
 async function fetchFileFromGitHub(
   relativePath: string,
-  destPath: string
+  destPath: string,
+  replacements?: Record<string, string>
 ): Promise<void> {
   const url = `${GITHUB_RAW_BASE}/${relativePath}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Failed to fetch ${relativePath}: ${res.status} ${res.statusText}`);
   }
-  const content = await res.text();
+  let content = await res.text();
+  if (replacements) {
+    for (const [placeholder, value] of Object.entries(replacements)) {
+      content = content.replaceAll(placeholder, value);
+    }
+  }
   await ensureDir(path.dirname(destPath));
   await fs.writeFile(destPath, content, "utf-8");
 }
 
-async function readJsonFile(filePath: string): Promise<Record<string, any>> {
+async function readJsonFile(filePath: string): Promise<Record<string, unknown>> {
   const content = await fs.readFile(filePath, "utf-8");
   return JSON.parse(content);
 }
@@ -168,10 +180,11 @@ async function monitorBalance(address: string): Promise<void> {
           chalk.cyan(` ${mon} MON`) +
           chalk.dim(` (${NETWORK.name})`)
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
       console.log(
         chalk.dim(`  [${new Date().toLocaleTimeString()}]`) +
-          chalk.red(` Failed to fetch balance: ${err.message}`)
+          chalk.red(` Failed to fetch balance: ${msg}`)
       );
     }
   };
@@ -237,8 +250,9 @@ async function updateWorkspace() {
     try {
       const dest = path.join(workspacePath, file);
       await fetchFileFromGitHub(file, dest);
-    } catch (err: any) {
-      errors.push(`  - ${file}: ${err.message}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      errors.push(`  - ${file}: ${msg}`);
     }
   }
 
@@ -400,12 +414,16 @@ async function main() {
   spinner.text = "Writing .env...";
 
   // Step 4: Write .env
-  const envPrefix = IS_TESTNET ? "MONAD_TESTNET" : "MONAD_MAINNET";
-  const envContent = `${envPrefix}_PRIVATE_KEY=${privateKey}
-${envPrefix}_ADDRESS=${address}
-${envPrefix}_RPC_URL=${NETWORK.rpc}
-${envPrefix}_CHAIN_ID=${NETWORK.chainId}
-NETWORK_MODE=${IS_TESTNET ? "testnet" : "mainnet"}
+  const apiUrl = "http://u00swgokgkso0ssgssoog0c4.89.167.58.81.sslip.io";
+  const envContent = `AGENT_PRIVATE_KEY=${privateKey}
+AGENT_ADDRESS=${address}
+NETWORK=${IS_TESTNET ? "testnet" : "mainnet"}
+RPC_URL=${NETWORK.rpc}
+FOMA_API_URL=${apiUrl}
+FOMA_ADDR=0x0B8fE534aB0f6Bf6A09E92BB1f260Cadd7587777
+REGISTRY_ADDR=0x6782Ac490615F63BaAcED668A5fA4f4D3e250d6a
+GOVERNOR_ADDR=0xb3EDdc787f22E188d3E30319df62cCb6f1bF4693
+POOL_ADDR=0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C
 `;
   await fs.writeFile(path.join(workspacePath, ".env"), envContent, {
     mode: 0o600,
@@ -414,13 +432,20 @@ NETWORK_MODE=${IS_TESTNET ? "testnet" : "mainnet"}
   // Step 5: Fetch templates from GitHub
   spinner.text = "Fetching templates from GitHub...";
 
+  const agentId = `foma-${userId}`;
+  const templateReplacements = {
+    "{{AGENT_ADDRESS}}": address,
+    "{{AGENT_ID}}": agentId,
+  };
+
   const templateErrors: string[] = [];
   for (const file of TEMPLATE_FILES) {
     try {
       const dest = path.join(workspacePath, file);
-      await fetchFileFromGitHub(file, dest);
-    } catch (err: any) {
-      templateErrors.push(`  - ${file}: ${err.message}`);
+      await fetchFileFromGitHub(file, dest, templateReplacements);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      templateErrors.push(`  - ${file}: ${msg}`);
     }
   }
 
@@ -437,8 +462,9 @@ NETWORK_MODE=${IS_TESTNET ? "testnet" : "mainnet"}
     try {
       const dest = path.join(workspacePath, file);
       await fetchFileFromGitHub(file, dest);
-    } catch (err: any) {
-      scriptErrors.push(`  - ${file}: ${err.message}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      scriptErrors.push(`  - ${file}: ${msg}`);
     }
   }
 
@@ -452,7 +478,7 @@ NETWORK_MODE=${IS_TESTNET ? "testnet" : "mainnet"}
 
   await ensureDir(OPENCLAW_DIR);
 
-  let openclawConfig: Record<string, any> = {};
+  let openclawConfig: Record<string, unknown> = {};
 
   if (await pathExists(OPENCLAW_JSON)) {
     try {
@@ -463,21 +489,22 @@ NETWORK_MODE=${IS_TESTNET ? "testnet" : "mainnet"}
     }
   }
 
-  if (!openclawConfig.agents) {
+  const agents = openclawConfig.agents as { list: Array<{ id: string }> } | undefined;
+  if (!agents) {
     openclawConfig.agents = { list: [] };
   }
-  if (!openclawConfig.agents.list) {
-    openclawConfig.agents.list = [];
+  const agentsList = (openclawConfig.agents as { list: Array<{ id: string }> }).list;
+  if (!agentsList) {
+    (openclawConfig.agents as { list: Array<{ id: string }> }).list = [];
   }
 
-  const agentId = `foma-${userId}`;
-
   // Remove existing entry for this agent if re-running
-  openclawConfig.agents.list = openclawConfig.agents.list.filter(
-    (a: any) => a.id !== agentId
-  );
+  (openclawConfig.agents as { list: Array<{ id: string }> }).list =
+    (openclawConfig.agents as { list: Array<{ id: string }> }).list.filter(
+      (a) => a.id !== agentId
+    );
 
-  openclawConfig.agents.list.push({
+  (openclawConfig.agents as { list: Array<Record<string, unknown>> }).list.push({
     id: agentId,
     name: "FoMA Agent",
     workspace: path.join("~/.openclaw", workspaceName),
@@ -534,14 +561,37 @@ Next Steps:
     )
   );
   console.log();
-  // TODO: Step 9 - Register with backend API
-  // POST /agents/register with EIP-191 signature
-  // Will be implemented once the backend API is deployed
-  console.log(
-    chalk.dim(
-      "  Note: API registration will happen automatically once the FoMA backend is live.\n"
-    )
-  );
+  // Step: Register with backend API
+  console.log(chalk.white("  3. Registering with FoMA backend..."));
+  try {
+    const viemAccount = privateKeyToAccount(privateKey as `0x${string}`);
+    const timestamp = Math.floor(Date.now() / 1000);
+    const regMessage = `Register agent ${address} for FoMA at timestamp ${timestamp}`;
+    const regSignature = await viemAccount.signMessage({ message: regMessage });
+    const regRes = await fetch(`${apiUrl}/api/agents/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        address,
+        message: regMessage,
+        signature: regSignature,
+      }),
+    });
+    if (regRes.ok) {
+      console.log(chalk.green("     Registered successfully!"));
+    } else if (regRes.status === 409) {
+      console.log(chalk.dim("     Already registered on-chain."));
+    } else {
+      console.log(
+        chalk.yellow("     Registration deferred -- backend may not be live yet.")
+      );
+    }
+  } catch {
+    console.log(
+      chalk.yellow("     Registration deferred -- backend may not be live yet.")
+    );
+  }
+  console.log();
 
   // Security reminder
   console.log(
