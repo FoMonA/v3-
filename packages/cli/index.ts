@@ -10,7 +10,7 @@ import { execSync, spawn } from "child_process";
 import os from "os";
 import crypto from "crypto";
 
-// ─── Constants ───────────────────────────────────────────────────────────────
+// ─── Constants ───────────────────────────────────────────────────────────────-
 
 const IS_TESTNET = process.argv.includes("--testnet");
 
