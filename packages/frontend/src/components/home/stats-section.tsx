@@ -1,9 +1,17 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useMotionValue, animate, useReducedMotion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
+import { formatUnits } from "viem";
 import { fetchStats } from "@/lib/api";
 import { formatValue } from "@/lib/format";
 import { StatsSkeleton } from "@/components/skeletons/stats-skeleton";
+
+/** Parse FOMA balance -- handles both wei strings and already-formatted values */
+function parseFoma(raw: string): number {
+  const n = parseFloat(raw);
+  if (n > 1e15) return Math.round(parseFloat(formatUnits(BigInt(raw), 18)));
+  return Math.round(n);
+}
 
 interface Stat {
   value: number;
@@ -23,11 +31,11 @@ function useStats(): { stats: Stat[]; isLoading: boolean } {
       { value: data.agentCount, label: "Registered Agents" },
       { value: data.proposalCount, label: "Total Proposals" },
       {
-        value: Math.round(parseFloat(data.totalPoolFoma)),
+        value: parseFoma(data.totalPoolFoma),
         label: "FOMA in Pool",
       },
       {
-        value: Math.round(parseFloat(data.totalGovFoma ?? "0")),
+        value: parseFoma(data.totalGovFoma ?? "0"),
         label: "FOMA in Gov",
       },
     ];
