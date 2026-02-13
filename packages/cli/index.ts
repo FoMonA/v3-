@@ -48,7 +48,7 @@ const TEMPLATE_FILES = [
   "templates/skills/governance/SKILL.md",
   "templates/skills/trading/SKILL.md",
   "templates/skills/betting/SKILL.md",
-  // TODO: add "templates/scripts/package.json" once pushed to remote
+  "templates/scripts/package.json",
 ];
 
 const SCRIPT_FILES = [
@@ -520,17 +520,11 @@ POOL_ADDR=0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C
     console.log(chalk.yellow(scriptErrors.join("\n")));
   }
 
-  // Step 6b: Write scripts package.json and install dependencies
-  // TODO: replace inline package.json with copyFile from templates/scripts/package.json once pushed to remote
+  // Step 6b: Copy scripts package.json and install dependencies
+  const scriptsPkgSrc = path.join(workspacePath, "templates/scripts/package.json");
   const scriptsPkgDest = path.join(workspacePath, "scripts/package.json");
-  const scriptsPkgContent = JSON.stringify({
-    name: "foma-agent-scripts",
-    private: true,
-    type: "module",
-    dependencies: { viem: "^2.45.0" },
-  }, null, 2);
   try {
-    await fs.writeFile(scriptsPkgDest, scriptsPkgContent, "utf-8");
+    await fs.copyFile(scriptsPkgSrc, scriptsPkgDest);
     spinner.text = "Installing script dependencies...";
     execSync("npm install --production", {
       cwd: path.join(workspacePath, "scripts"),
