@@ -1,0 +1,8 @@
+{
+  "name": "foma-agent-scripts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "viem": "^2.45.0"
+  }
+}

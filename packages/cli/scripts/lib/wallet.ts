@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 import { CHAIN, RPC_URL } from "./contracts.js";
 
 // Load .env from workspace root (two levels up from scripts/lib/)
-// This ensures env vars load regardless of OpenClaw's cwd
 const __filename = fileURLToPath(import.meta.url);
 const workspaceRoot = dirname(dirname(dirname(__filename)));
 const envPath = join(workspaceRoot, ".env");
@@ -19,9 +18,9 @@ if (existsSync(envPath)) {
     if (eqIdx === -1) continue;
     const key = trimmed.slice(0, eqIdx);
     const value = trimmed.slice(eqIdx + 1);
-    if (!process.env[key]) {
-      process.env[key] = value;
-    }
+    // Always prefer .env file values over existing env vars
+    // to ensure each agent uses its own workspace credentials
+    process.env[key] = value;
   }
 }
 

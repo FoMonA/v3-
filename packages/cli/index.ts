@@ -35,7 +35,7 @@ const OPENCLAW_DIR = path.join(os.homedir(), ".openclaw");
 const OPENCLAW_JSON = path.join(OPENCLAW_DIR, "openclaw.json");
 
 const GITHUB_RAW_BASE =
-  "https://raw.githubusercontent.com/FoMonA/v3-/main/packages/cli";
+  "https://raw.githubusercontent.com/FoMonA/v3-/cli/wip/packages/cli";
 
 const TEMPLATE_FILES = [
   "templates/AGENTS.md",
@@ -48,6 +48,7 @@ const TEMPLATE_FILES = [
   "templates/skills/governance/SKILL.md",
   "templates/skills/trading/SKILL.md",
   "templates/skills/betting/SKILL.md",
+  // TODO: add "templates/scripts/package.json" once pushed to remote
 ];
 
 const SCRIPT_FILES = [
@@ -263,6 +264,28 @@ async function updateWorkspace() {
     spinner.succeed("All templates and scripts updated successfully");
   }
 
+  // Copy root-level templates to workspace root (OpenClaw reads from root)
+  const UPDATE_ROOT_TEMPLATES: Record<string, string> = {
+    "templates/AGENTS.md": "AGENTS.md",
+    "templates/SOUL.md": "SOUL.md",
+    "templates/HEARTBEAT.md": "HEARTBEAT.md",
+    "templates/BOOTSTRAP.md": "BOOTSTRAP.md",
+    "templates/USER.md": "USER.md",
+    "templates/references/CONSTITUTION.md": "references/CONSTITUTION.md",
+    "templates/references/API.md": "references/API.md",
+  };
+
+  for (const [src, dest] of Object.entries(UPDATE_ROOT_TEMPLATES)) {
+    const srcPath = path.join(workspacePath, src);
+    const destPath = path.join(workspacePath, dest);
+    try {
+      await ensureDir(path.dirname(destPath));
+      await fs.copyFile(srcPath, destPath);
+    } catch {
+      // Source wasn't fetched, skip
+    }
+  }
+
   console.log(chalk.dim(`\n  Workspace: ${workspacePath}`));
 
   // Restart agent if running
@@ -454,6 +477,30 @@ POOL_ADDR=0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C
     console.log(chalk.yellow(templateErrors.join("\n")));
   }
 
+  // Step 5b: Copy root-level templates to workspace root (OpenClaw reads from root)
+  spinner.text = "Installing workspace files...";
+
+  const ROOT_TEMPLATES: Record<string, string> = {
+    "templates/AGENTS.md": "AGENTS.md",
+    "templates/SOUL.md": "SOUL.md",
+    "templates/HEARTBEAT.md": "HEARTBEAT.md",
+    "templates/BOOTSTRAP.md": "BOOTSTRAP.md",
+    "templates/USER.md": "USER.md",
+    "templates/references/CONSTITUTION.md": "references/CONSTITUTION.md",
+    "templates/references/API.md": "references/API.md",
+  };
+
+  for (const [src, dest] of Object.entries(ROOT_TEMPLATES)) {
+    const srcPath = path.join(workspacePath, src);
+    const destPath = path.join(workspacePath, dest);
+    try {
+      await ensureDir(path.dirname(destPath));
+      await fs.copyFile(srcPath, destPath);
+    } catch {
+      // Source wasn't fetched, skip
+    }
+  }
+
   // Step 6: Fetch scripts from GitHub
   spinner.text = "Fetching scripts from GitHub...";
 
@@ -471,6 +518,28 @@ POOL_ADDR=0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C
   if (scriptErrors.length > 0) {
     spinner.warn("Some scripts could not be fetched:");
     console.log(chalk.yellow(scriptErrors.join("\n")));
+  }
+
+  // Step 6b: Write scripts package.json and install dependencies
+  // TODO: replace inline package.json with copyFile from templates/scripts/package.json once pushed to remote
+  const scriptsPkgDest = path.join(workspacePath, "scripts/package.json");
+  const scriptsPkgContent = JSON.stringify({
+    name: "foma-agent-scripts",
+    private: true,
+    type: "module",
+    dependencies: { viem: "^2.45.0" },
+  }, null, 2);
+  try {
+    await fs.writeFile(scriptsPkgDest, scriptsPkgContent, "utf-8");
+    spinner.text = "Installing script dependencies...";
+    execSync("npm install --production", {
+      cwd: path.join(workspacePath, "scripts"),
+      stdio: "pipe",
+    });
+    spinner.succeed("Script dependencies installed");
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    spinner.warn(`Could not install script dependencies: ${msg}`);
   }
 
   // Step 7: Update openclaw.json
@@ -507,7 +576,7 @@ POOL_ADDR=0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C
   (openclawConfig.agents as { list: Array<Record<string, unknown>> }).list.push({
     id: agentId,
     name: "FoMA Agent",
-    workspace: path.join("~/.openclaw", workspaceName),
+    workspace: workspacePath,
     heartbeat: { every: "30m", target: "last" },
   });
 
@@ -582,13 +651,15 @@ Next Steps:
     } else if (regRes.status === 409) {
       console.log(chalk.dim("     Already registered on-chain."));
     } else {
+      const body = await regRes.text();
       console.log(
-        chalk.yellow("     Registration deferred -- backend may not be live yet.")
+        chalk.yellow(`     Registration failed (${regRes.status}): ${body}`)
       );
     }
-  } catch {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     console.log(
-      chalk.yellow("     Registration deferred -- backend may not be live yet.")
+      chalk.yellow(`     Registration deferred: ${msg}`)
     );
   }
   console.log();
