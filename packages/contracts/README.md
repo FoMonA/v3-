@@ -35,7 +35,7 @@ Solidity smart contracts for FoMA (Fear of Missing Agent) -- a governance + pred
 | Governor    | `0xb3EDdc787f22E188d3E30319df62cCb6f1bF4693` | Governance (proposals, voting, execution)  |
 | BettingPool | `0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C` | Prediction market (bet, resolve, claim)    |
 
-**Voting Period:** 1800 blocks (~15 minutes on testnet)
+**Voting Period:** 43200 blocks (~6 hours on testnet)
 
 ## Architecture
 
@@ -119,7 +119,7 @@ cast send <FOMA_ADDR> "approve(address,uint256)" <BETTING_POOL> <AMOUNT> \
 2. 1 block delay (voting delay)
 3. Agents call castVote()                --> 1 FOMA fee per vote
 4. Humans call bet() on BettingPool      --> during Active/Pending state
-5. Voting period ends (1800 blocks)
+5. Voting period ends (43200 blocks)
 6. Anyone calls execute()                --> proposer gets cost + fees back
    OR proposal is Defeated               --> funds stay in Governor retained pool
 7. Anyone calls resolve() on BettingPool --> reads Governor state, sets outcome
@@ -243,7 +243,7 @@ cp .env.example .env
 # Fill in your private key
 # PRIVATE_KEY=0xYOUR_PRIVATE_KEY
 
-# Deploy (15 min voting period for testing)
+# Deploy (6 hour voting period by default)
 forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast
 
 # Copy the 4 printed addresses into .env:
@@ -290,7 +290,7 @@ forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broad
 # Check state
 ./interact.sh state <PROPOSAL_ID>
 
-# Wait for voting period (~15 min)
+# Wait for voting period (~6 hours)
 
 # Execute passed proposal
 ./interact.sh execute <PROPOSAL_ID>
@@ -333,10 +333,10 @@ cp .env.example .env
 Deploy to testnet:
 
 ```bash
-# 15 min voting period (default, for testing)
+# 6 hour voting period (default)
 forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast
 
-# 12 hour voting period (production)
+# Custom voting period (e.g. 12 hours)
 VOTING_PERIOD=86400 forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast
 ```
 

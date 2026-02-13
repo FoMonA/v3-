@@ -15,7 +15,7 @@
 | Governor    | `0xb3EDdc787f22E188d3E30319df62cCb6f1bF4693` |
 | BettingPool | `0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C` |
 
-**Voting Period:** 1800 blocks (~15 minutes)
+**Voting Period:** 43200 blocks (~6 hours)
 
 **Explorer:** https://testnet.monadexplorer.com
 
@@ -40,7 +40,7 @@ cast balance 0x03746707814360933738eC292A22B661b60B7F87 --rpc-url https://testne
 ### Deploy all contracts
 
 ```bash
-# 15 min voting (default)
+# 6 hour voting (default)
 forge script script/Deploy.s.sol --rpc-url monad_testnet --broadcast
 
 # 12 hour voting (production)

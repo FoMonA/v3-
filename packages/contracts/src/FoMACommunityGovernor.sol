@@ -218,7 +218,7 @@ contract FoMACommunityGovernor is Governor, GovernorCountingSimple, GovernorSett
     }
 
     // No quorum requirement. Outcome is determined solely by simple majority
-    // (forVotes > againstVotes) at the end of the 86,400 block voting period.
+    // (forVotes > againstVotes) at the end of the voting period.
     // _voteSucceeded() is inherited from GovernorCountingSimple (not overridden):
     //   return proposalVote.forVotes > proposalVote.againstVotes;
     // NOTE: Ties (forVotes == againstVotes) result in proposal DEFEAT.

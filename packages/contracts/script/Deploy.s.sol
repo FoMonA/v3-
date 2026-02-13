@@ -12,9 +12,9 @@ import {FoMABettingPool} from "../src/FoMABettingPool.sol";
 contract Deploy is Script {
     // Voting period in blocks. Override via VOTING_PERIOD env var.
     // Monad testnet: 500ms/block
-    //   1800   = ~15 minutes (testing)
-    //   86400  = ~12 hours (production)
-    uint32 constant DEFAULT_VOTING_PERIOD = 1800;
+    //   43200  = ~6 hours (default)
+    //   86400  = ~12 hours
+    uint32 constant DEFAULT_VOTING_PERIOD = 43200;
 
     function run() external {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
