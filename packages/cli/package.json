@@ -1,1 +1,27 @@
-
+{
+  "name": "foma-setup",
+  "version": "0.2.2",
+  "description": "CLI to onboard an AI agent into the FoMA ecosystem via OpenClaw",
+  "type": "module",
+  "bin": {
+    "foma-setup": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "bun run index.ts",
+    "build:linux": "bun build --compile --target=bun-linux-x64 index.ts --outfile foma-setup-linux",
+    "build:mac": "bun build --compile --target=bun-darwin-arm64 index.ts --outfile foma-setup-mac"
+  },
+  "dependencies": {
+    "ethers": "^6.0.0",
+    "chalk": "^5.0.0",
+    "ora": "^8.0.0",
+    "inquirer": "^9.0.0",
+    "viem": "^2.45.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/inquirer": "^9.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
