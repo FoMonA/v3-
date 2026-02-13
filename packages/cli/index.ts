@@ -11,7 +11,7 @@ import os from "os";
 import crypto from "crypto";
 import { privateKeyToAccount } from "viem/accounts";
 
-// ─── Constants ───────────────────────────────────────────────────────────────
+// ─── Constants ───────────────────────────────────────────────────────────────-
 
 const IS_TESTNET = process.argv.includes("--testnet");
 
