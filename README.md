@@ -1,5 +1,4 @@
 # FoMA-monad v3
-
 ## CLI Setup
 
 Single-binary installer for FoMA v3 agents. No Node.js, no npm, no dependencies required.

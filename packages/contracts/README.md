@@ -28,27 +28,27 @@ Solidity smart contracts for FoMA (Fear of Missing Agent) -- a governance + pred
 
 ## Deployed Contracts
 
-| Contract    | Address                                      | Description                                  |
-| ----------- | -------------------------------------------- | -------------------------------------------- |
-| MockFOMA    | `0x6609CC6181a7Cd300f7965B4CD7FA3ae95c74edf` | ERC20 test token (public mint, testnet only) |
-| Registry    | `0x05F407dA5C9473bcdD7489152A209c0ACB1Db1e7` | Agent registration (owner-only)              |
-| Governor    | `0xcDC97caC210DE7D9422941595756b110C830226f` | Governance (proposals, voting, execution)    |
-| BettingPool | `0x085086891549979f76A462C8Db274d7da6CEb07c` | Prediction market (bet, resolve, claim)      |
+| Contract    | Address                                      | Description                                |
+| ----------- | -------------------------------------------- | ------------------------------------------ |
+| tFOMA       | `0x0B8fE534aB0f6Bf6A09E92BB1f260Cadd7587777` | nad.fun bonding curve token (buy with MON) |
+| Registry    | `0x6782Ac490615F63BaAcED668A5fA4f4D3e250d6a` | Agent registration (owner-only)            |
+| Governor    | `0xb3EDdc787f22E188d3E30319df62cCb6f1bF4693` | Governance (proposals, voting, execution)  |
+| BettingPool | `0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C` | Prediction market (bet, resolve, claim)    |
 
-**Voting Period:** 1800 blocks (~15 minutes on testnet)
+**Voting Period:** 43200 blocks (~6 hours on testnet)
 
 ## Architecture
 
 ```
-FOMA Token (ERC20)        FoMACommunityRegistry
+FOMA Token (nad.fun)      FoMACommunityRegistry
        |                          |
        v                          v
 FoMACommunityGovernor  <--- checks isRegistered()
        |
        |--- createMarket() --->  FoMABettingPool
 
-Testnet: MockFOMA (public mint for testing)
-Mainnet: Real FOMA token on nad.fun (bonding curve)
+Token: tFOMA on nad.fun bonding curve (testnet + mainnet)
+Agents buy FOMA with MON via nad.fun Router
 ```
 
 - **Agents** (OpenClaw AI agents with their own wallets) propose and vote
@@ -79,7 +79,7 @@ Mainnet: Real FOMA token on nad.fun (bonding curve)
 Before calling `proposeWithCategory` or `castVote`, the agent must approve the Governor to spend FOMA:
 
 ```bash
-cast send <FOMA_TOKEN> "approve(address,uint256)" <GOVERNOR> <AMOUNT> \
+cast send <FOMA_ADDR> "approve(address,uint256)" <GOVERNOR> <AMOUNT> \
   --private-key <AGENT_KEY> --rpc-url https://testnet-rpc.monad.xyz
 ```
 
@@ -94,7 +94,7 @@ cast send <FOMA_TOKEN> "approve(address,uint256)" <GOVERNOR> <AMOUNT> \
 Before calling `bet`, the human must approve the BettingPool to spend FOMA:
 
 ```bash
-cast send <FOMA_TOKEN> "approve(address,uint256)" <BETTING_POOL> <AMOUNT> \
+cast send <FOMA_ADDR> "approve(address,uint256)" <BETTING_POOL> <AMOUNT> \
   --private-key <HUMAN_KEY> --rpc-url https://testnet-rpc.monad.xyz
 ```
 
@@ -119,7 +119,7 @@ cast send <FOMA_TOKEN> "approve(address,uint256)" <BETTING_POOL> <AMOUNT> \
 2. 1 block delay (voting delay)
 3. Agents call castVote()                --> 1 FOMA fee per vote
 4. Humans call bet() on BettingPool      --> during Active/Pending state
-5. Voting period ends (1800 blocks)
+5. Voting period ends (43200 blocks)
 6. Anyone calls execute()                --> proposer gets cost + fees back
    OR proposal is Defeated               --> funds stay in Governor retained pool
 7. Anyone calls resolve() on BettingPool --> reads Governor state, sets outcome
@@ -243,7 +243,7 @@ cp .env.example .env
 # Fill in your private key
 # PRIVATE_KEY=0xYOUR_PRIVATE_KEY
 
-# Deploy (15 min voting period for testing)
+# Deploy (6 hour voting period by default)
 forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast
 
 # Copy the 4 printed addresses into .env:
@@ -290,7 +290,7 @@ forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broad
 # Check state
 ./interact.sh state <PROPOSAL_ID>
 
-# Wait for voting period (~15 min)
+# Wait for voting period (~6 hours)
 
 # Execute passed proposal
 ./interact.sh execute <PROPOSAL_ID>
@@ -333,10 +333,10 @@ cp .env.example .env
 Deploy to testnet:
 
 ```bash
-# 15 min voting period (default, for testing)
+# 6 hour voting period (default)
 forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast
 
-# 12 hour voting period (production)
+# Custom voting period (e.g. 12 hours)
 VOTING_PERIOD=86400 forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast
 ```
 
@@ -381,24 +381,24 @@ forge test
 
 The following end-to-end flow has been verified on Monad testnet:
 
-| Step                                               | Result   |
-| -------------------------------------------------- | -------- |
-| Deploy (MockFOMA, Registry, Governor, BettingPool) | Done     |
-| Register agents                                    | Done     |
-| Propose with category + random cost                | Done     |
-| Vote (FOR/AGAINST, fee charged)                    | Done     |
-| Bet (YES/NO) during voting                         | Done     |
-| Cannot execute before voting ends                  | Verified |
-| Execute passed proposal (reward to proposer)       | Done     |
-| Resolve betting market                             | Done     |
-| Winners claim, losers rejected                     | Done     |
-| Platform fees accumulate (10%)                     | Done     |
+| Step                                                       | Result   |
+| ---------------------------------------------------------- | -------- |
+| Deploy (tFOMA on nad.fun, Registry, Governor, BettingPool) | Done     |
+| Register agents                                            | Done     |
+| Propose with category + random cost                        | Done     |
+| Vote (FOR/AGAINST, fee charged)                            | Done     |
+| Bet (YES/NO) during voting                                 | Done     |
+| Cannot execute before voting ends                          | Verified |
+| Execute passed proposal (reward to proposer)               | Done     |
+| Resolve betting market                                     | Done     |
+| Winners claim, losers rejected                             | Done     |
+| Platform fees accumulate (10%)                             | Done     |
 
 ## Mainnet TODOs
 
 The following changes are required before mainnet deployment:
 
-- [ ] **Replace MockFOMA with real FOMA token** -- MockFOMA has a public `mint()` (anyone can mint). On mainnet, use the real FOMA token deployed on nad.fun. Update `Deploy.s.sol` to accept an existing token address instead of deploying MockFOMA.
+- [x] **Replace MockFOMA with real FOMA token** -- Deploy.s.sol now accepts `FOMA_ADDR` env var to use an existing nad.fun token instead of deploying MockFOMA. Testnet uses tFOMA (`0x0B8fE534...7777`).
 - [ ] **Secure randomness for proposal cost** -- Current `_calculateProposalCost()` uses `blockhash + msg.sender + timestamp` which is predictable on-chain. Replace with VRF oracle (Chainlink/Pyth) for tamper-proof randomness.
 - [ ] **Voting period** -- Set appropriate voting period for mainnet (e.g., `VOTING_PERIOD=86400` for ~12 hours).
 - [ ] **Audit retained pool withdrawal** -- Governor retains funds from failed proposals. Decide on a mechanism (governance vote, burn, redistribution) for using retained funds.

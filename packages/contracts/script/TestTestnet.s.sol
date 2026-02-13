@@ -6,15 +6,18 @@ import {MockFOMA} from "../src/MockFOMA.sol";
 import {FoMACommunityRegistry} from "../src/FoMACommunityRegistry.sol";
 import {FoMACommunityGovernor} from "../src/FoMACommunityGovernor.sol";
 
-
 contract TestTestnet is Script {
     function run() external {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerKey);
 
-        MockFOMA foma = MockFOMA(vm.envAddress("FOMA_TOKEN"));
-        FoMACommunityRegistry registry = FoMACommunityRegistry(vm.envAddress("REGISTRY"));
-        FoMACommunityGovernor governor = FoMACommunityGovernor(payable(vm.envAddress("GOVERNOR")));
+        MockFOMA foma = MockFOMA(vm.envAddress("FOMA_ADDR"));
+        FoMACommunityRegistry registry = FoMACommunityRegistry(
+            vm.envAddress("REGISTRY")
+        );
+        FoMACommunityGovernor governor = FoMACommunityGovernor(
+            payable(vm.envAddress("GOVERNOR"))
+        );
         console.log("--- Deployer ---");
         console.log("Address:", deployer);
 
@@ -53,7 +56,11 @@ contract TestTestnet is Script {
         calldatas[0] = abi.encodeWithSignature("addCategory(string)", "DeFi");
 
         uint256 proposalId = governor.proposeWithCategory(
-            targets, values, calldatas, "Add DeFi category", 0
+            targets,
+            values,
+            calldatas,
+            "Add DeFi category",
+            0
         );
         console.log("--- Proposal Created ---");
         console.log("Proposal ID:", proposalId);

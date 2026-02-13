@@ -12,26 +12,37 @@ import {FoMABettingPool} from "../src/FoMABettingPool.sol";
 contract Deploy is Script {
     // Voting period in blocks. Override via VOTING_PERIOD env var.
     // Monad testnet: 500ms/block
-    //   1800   = ~15 minutes (testing)
-    //   86400  = ~12 hours (production)
-    uint32 constant DEFAULT_VOTING_PERIOD = 1800;
+    //   43200  = ~6 hours (default)
+    //   86400  = ~12 hours
+    uint32 constant DEFAULT_VOTING_PERIOD = 43200;
 
     function run() external {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerKey);
 
-        uint32 votingPeriod = uint32(vm.envOr("VOTING_PERIOD", uint256(DEFAULT_VOTING_PERIOD)));
+        uint32 votingPeriod = uint32(
+            vm.envOr("VOTING_PERIOD", uint256(DEFAULT_VOTING_PERIOD))
+        );
+
+        // If FOMA_ADDR is set, use that address (e.g. nad.fun bonding curve token).
+        // Otherwise deploy a fresh MockFOMA for standalone testing.
+        address fomaTokenAddr = vm.envOr("FOMA_ADDR", address(0));
 
         vm.startBroadcast(deployerKey);
 
-        MockFOMA fomaToken = new MockFOMA();
-        console.log("MockFOMA:", address(fomaToken));
+        if (fomaTokenAddr == address(0)) {
+            MockFOMA mock = new MockFOMA();
+            fomaTokenAddr = address(mock);
+            console.log("MockFOMA deployed:", fomaTokenAddr);
+        } else {
+            console.log("Using existing FOMA token:", fomaTokenAddr);
+        }
 
         FoMACommunityRegistry registry = new FoMACommunityRegistry(deployer);
         console.log("Registry:", address(registry));
 
         FoMACommunityGovernor governor = new FoMACommunityGovernor(
-            IERC20(address(fomaToken)),
+            IERC20(fomaTokenAddr),
             registry,
             deployer,
             votingPeriod
@@ -41,7 +52,7 @@ contract Deploy is Script {
 
         FoMABettingPool bettingPool = new FoMABettingPool(
             IGovernor(address(governor)),
-            IERC20(address(fomaToken)),
+            IERC20(fomaTokenAddr),
             deployer
         );
         console.log("BettingPool:", address(bettingPool));
@@ -50,7 +61,7 @@ contract Deploy is Script {
         console.log("BettingPool linked to Governor");
 
         console.log("--- .env values ---");
-        console.log("FOMA_ADDR=", address(fomaToken));
+        console.log("FOMA_ADDR=", fomaTokenAddr);
         console.log("REGISTRY_ADDR=", address(registry));
         console.log("GOVERNOR_ADDR=", address(governor));
         console.log("POOL_ADDR=", address(bettingPool));
