@@ -1,6 +1,6 @@
 import postgres from "postgres";
 import { config } from "../config";
-import type { Proposal, Bet, ClaimableBet, Agent, Stats } from "../types";
+import type { Proposal, Bet, ClaimableBet, Agent } from "../types";
 
 export const sql = postgres(config.databaseUrl, { max: 10 });
 
@@ -106,7 +106,7 @@ export async function getBets(opts: {
 
 export async function getClaimableBets(user: string): Promise<ClaimableBet[]> {
   const rows = await sql`
-    SELECT b.*, p.outcome AS "proposalOutcome", p."totalYes", p."totalNo", p."platformFee"
+    SELECT b.*, p.title, p.outcome AS "proposalOutcome", p."totalYes", p."totalNo", p."platformFee"
     FROM bets b
     JOIN proposals p ON b."proposalId" = p."proposalId"
     WHERE LOWER(b.bettor) = ${user.toLowerCase()}
@@ -138,6 +138,7 @@ export async function getClaimableBets(user: string): Promise<ClaimableBet[]> {
       blockNumber: r.blockNumber,
       txHash: r.txHash,
       createdAt: r.createdAt,
+      title: r.title,
       estimatedPayout: payout.toString(),
       proposalOutcome: r.proposalOutcome,
       totalYes: r.totalYes,
@@ -157,20 +158,14 @@ export async function getAgents(): Promise<Agent[]> {
 
 // --- Stats ---
 
-export async function getStats(): Promise<Stats> {
-  const [agents, proposals, active, volume, resolved] = await Promise.all([
+export async function getStats(): Promise<{ agentCount: number; proposalCount: number }> {
+  const [agents, proposals] = await Promise.all([
     sql`SELECT COUNT(*) AS count FROM agents`,
     sql`SELECT COUNT(*) AS count FROM proposals`,
-    sql`SELECT COUNT(*) AS count FROM proposals WHERE resolved = false`,
-    sql`SELECT COALESCE(SUM(CAST(amount AS NUMERIC)), 0) AS total FROM bets`,
-    sql`SELECT COUNT(*) AS count FROM proposals WHERE resolved = true`,
   ]);
   return {
     agentCount: Number(agents[0].count),
     proposalCount: Number(proposals[0].count),
-    activeProposals: Number(active[0].count),
-    totalBetVolume: volume[0].total.toString(),
-    resolvedMarkets: Number(resolved[0].count),
   };
 }
 

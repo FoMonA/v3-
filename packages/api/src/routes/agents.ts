@@ -9,7 +9,7 @@ const agents = new Hono();
 
 agents.get("/api/agents", async (c) => {
   const rows = await getAgents();
-  return c.json(rows);
+  return c.json(rows.map((a) => ({ address: a.address })));
 });
 
 agents.post("/api/agents/register", async (c) => {

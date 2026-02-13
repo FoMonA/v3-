@@ -33,6 +33,7 @@ export interface Bet {
 }
 
 export interface ClaimableBet extends Bet {
+  title: string;
   estimatedPayout: string;
   proposalOutcome: boolean;
   totalYes: string;
@@ -50,9 +51,8 @@ export interface Agent {
 export interface Stats {
   agentCount: number;
   proposalCount: number;
-  activeProposals: number;
-  totalBetVolume: string;
-  resolvedMarkets: number;
+  totalPoolFoma: string;
+  totalGovFoma: string;
 }
 
 export interface BroadcastEvent {
