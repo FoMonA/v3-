@@ -35,7 +35,7 @@ const OPENCLAW_DIR = path.join(os.homedir(), ".openclaw");
 const OPENCLAW_JSON = path.join(OPENCLAW_DIR, "openclaw.json");
 
 const GITHUB_RAW_BASE =
-  "https://raw.githubusercontent.com/FoMonA/v3-/cli/wip/packages/cli";
+  "https://raw.githubusercontent.com/FoMonA/v3-/main/packages/cli";
 
 const TEMPLATE_FILES = [
   "templates/AGENTS.md",
@@ -78,7 +78,8 @@ function banner() {
  ║         FoMA v3 Agent Setup           ║
  ║   AI agents forming a DAO on Monad    ║
  ╚═══════════════════════════════════════╝
-`) + `  ${networkLabel} ${chalk.dim(NETWORK.name)} (Chain ${NETWORK.chainId})\n`
+`) +
+      `  ${networkLabel} ${chalk.dim(NETWORK.name)} (Chain ${NETWORK.chainId})\n`,
   );
 }
 
@@ -108,9 +109,7 @@ async function installOpenClaw(): Promise<boolean> {
   } catch (err) {
     spinner.fail("Failed to install OpenClaw");
     console.error(
-      chalk.red(
-        "Please install manually: npm install -g openclaw@latest"
-      )
+      chalk.red("Please install manually: npm install -g openclaw@latest"),
     );
     return false;
   }
@@ -134,12 +133,14 @@ async function ensureDir(dir: string): Promise<void> {
 async function fetchFileFromGitHub(
   relativePath: string,
   destPath: string,
-  replacements?: Record<string, string>
+  replacements?: Record<string, string>,
 ): Promise<void> {
   const url = `${GITHUB_RAW_BASE}/${relativePath}`;
   const res = await fetch(url);
   if (!res.ok) {
-    throw new Error(`Failed to fetch ${relativePath}: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to fetch ${relativePath}: ${res.status} ${res.statusText}`,
+    );
   }
   let content = await res.text();
   if (replacements) {
@@ -151,7 +152,9 @@ async function fetchFileFromGitHub(
   await fs.writeFile(destPath, content, "utf-8");
 }
 
-async function readJsonFile(filePath: string): Promise<Record<string, unknown>> {
+async function readJsonFile(
+  filePath: string,
+): Promise<Record<string, unknown>> {
   const content = await fs.readFile(filePath, "utf-8");
   return JSON.parse(content);
 }
@@ -179,13 +182,13 @@ async function monitorBalance(address: string): Promise<void> {
         chalk.dim(`  [${timestamp}]`) +
           chalk.white(` ${address.slice(0, 6)}...${address.slice(-4)}`) +
           chalk.cyan(` ${mon} MON`) +
-          chalk.dim(` (${NETWORK.name})`)
+          chalk.dim(` (${NETWORK.name})`),
       );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.log(
         chalk.dim(`  [${new Date().toLocaleTimeString()}]`) +
-          chalk.red(` Failed to fetch balance: ${msg}`)
+          chalk.red(` Failed to fetch balance: ${msg}`),
       );
     }
   };
@@ -302,7 +305,9 @@ async function updateWorkspace() {
     stdio: "ignore",
   });
   child.unref();
-  console.log(chalk.green(`  ✓ Agent ${agentId} restarted with updated files\n`));
+  console.log(
+    chalk.green(`  ✓ Agent ${agentId} restarted with updated files\n`),
+  );
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
@@ -324,9 +329,7 @@ async function main() {
 
       if (workspaces.length > 0) {
         console.log(
-          chalk.yellow(
-            `Existing workspace found: ${workspaces.join(", ")}\n`
-          )
+          chalk.yellow(`Existing workspace found: ${workspaces.join(", ")}\n`),
         );
         const { action } = await inquirer.prompt([
           {
@@ -373,9 +376,7 @@ async function main() {
       const ok = await installOpenClaw();
       if (!ok) process.exit(1);
     } else {
-      console.log(
-        chalk.red("OpenClaw is required. Install it and run again.")
-      );
+      console.log(chalk.red("OpenClaw is required. Install it and run again."));
       process.exit(1);
     }
   } else {
@@ -405,7 +406,8 @@ async function main() {
         message: "Enter your private key (hex):",
         mask: "*",
         validate: (input: string) =>
-          isValidPrivateKey(input) || "Invalid private key format (expected 64 hex chars, optionally prefixed with 0x)",
+          isValidPrivateKey(input) ||
+          "Invalid private key format (expected 64 hex chars, optionally prefixed with 0x)",
       },
     ]);
     const hex = privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`;
@@ -521,7 +523,10 @@ POOL_ADDR=0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C
   }
 
   // Step 6b: Copy scripts package.json and install dependencies
-  const scriptsPkgSrc = path.join(workspacePath, "templates/scripts/package.json");
+  const scriptsPkgSrc = path.join(
+    workspacePath,
+    "templates/scripts/package.json",
+  );
   const scriptsPkgDest = path.join(workspacePath, "scripts/package.json");
   try {
     await fs.copyFile(scriptsPkgSrc, scriptsPkgDest);
@@ -552,32 +557,36 @@ POOL_ADDR=0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C
     }
   }
 
-  const agents = openclawConfig.agents as { list: Array<{ id: string }> } | undefined;
+  const agents = openclawConfig.agents as
+    | { list: Array<{ id: string }> }
+    | undefined;
   if (!agents) {
     openclawConfig.agents = { list: [] };
   }
-  const agentsList = (openclawConfig.agents as { list: Array<{ id: string }> }).list;
+  const agentsList = (openclawConfig.agents as { list: Array<{ id: string }> })
+    .list;
   if (!agentsList) {
     (openclawConfig.agents as { list: Array<{ id: string }> }).list = [];
   }
 
   // Remove existing entry for this agent if re-running
-  (openclawConfig.agents as { list: Array<{ id: string }> }).list =
-    (openclawConfig.agents as { list: Array<{ id: string }> }).list.filter(
-      (a) => a.id !== agentId
-    );
+  (openclawConfig.agents as { list: Array<{ id: string }> }).list = (
+    openclawConfig.agents as { list: Array<{ id: string }> }
+  ).list.filter((a) => a.id !== agentId);
 
-  (openclawConfig.agents as { list: Array<Record<string, unknown>> }).list.push({
-    id: agentId,
-    name: "FoMA Agent",
-    workspace: workspacePath,
-    heartbeat: { every: "30m", target: "last" },
-  });
+  (openclawConfig.agents as { list: Array<Record<string, unknown>> }).list.push(
+    {
+      id: agentId,
+      name: "FoMA Agent",
+      workspace: workspacePath,
+      heartbeat: { every: "30m", target: "last" },
+    },
+  );
 
   await fs.writeFile(
     OPENCLAW_JSON,
     JSON.stringify(openclawConfig, null, 2),
-    "utf-8"
+    "utf-8",
   );
 
   spinner.succeed("Workspace created and configured");
@@ -588,7 +597,7 @@ POOL_ADDR=0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C
 ═══════════════════════════════════════════
   FoMA Agent Setup Complete!
 ═══════════════════════════════════════════
-`)
+`),
   );
 
   console.log(chalk.white("  Agent ID:    ") + chalk.cyan(agentId));
@@ -600,28 +609,28 @@ POOL_ADDR=0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C
   console.log(
     chalk.bold.yellow(`
 Next Steps:
-`)
+`),
   );
 
   console.log(
     chalk.white(
-      `  1. Fund your agent with ${chalk.bold("0.5 MON")} on ${NETWORK.name}`
-    )
+      `  1. Fund your agent with ${chalk.bold("0.5 MON")} on ${NETWORK.name}`,
+    ),
   );
   console.log(chalk.dim("     Send MON to: ") + chalk.cyan(address));
   if (IS_TESTNET) {
-    console.log(chalk.dim("     Faucet: https://testnet.monadexplorer.com/faucet"));
+    console.log(
+      chalk.dim("     Faucet: https://testnet.monadexplorer.com/faucet"),
+    );
   }
   console.log();
   console.log(
     chalk.white(
-      `  2. Buy ${chalk.bold("FOMA tokens")} on nad.fun (https://nad.fun)`
-    )
+      `  2. Buy ${chalk.bold("FOMA tokens")} on nad.fun (https://nad.fun)`,
+    ),
   );
   console.log(
-    chalk.dim(
-      "     Your agent needs FOMA to propose and vote in the DAO"
-    )
+    chalk.dim("     Your agent needs FOMA to propose and vote in the DAO"),
   );
   console.log();
   // Step: Register with backend API
@@ -647,24 +656,20 @@ Next Steps:
     } else {
       const body = await regRes.text();
       console.log(
-        chalk.yellow(`     Registration failed (${regRes.status}): ${body}`)
+        chalk.yellow(`     Registration failed (${regRes.status}): ${body}`),
       );
     }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.log(
-      chalk.yellow(`     Registration deferred: ${msg}`)
-    );
+    console.log(chalk.yellow(`     Registration deferred: ${msg}`));
   }
   console.log();
 
   // Security reminder
   console.log(
-    chalk.red.bold("  ⚠  Keep your private key safe! Never share it.")
+    chalk.red.bold("  ⚠  Keep your private key safe! Never share it."),
   );
-  console.log(
-    chalk.dim(`     Stored securely in: ${workspacePath}/.env\n`)
-  );
+  console.log(chalk.dim(`     Stored securely in: ${workspacePath}/.env\n`));
 
   // Step 9: Ask to start agent
   const { startAgent } = await inquirer.prompt([
@@ -689,9 +694,7 @@ Next Steps:
     console.log(chalk.dim("  Monitoring balance every 30s (Ctrl+C to exit)\n"));
     await monitorBalance(address);
   } else {
-    console.log(
-      chalk.dim(`\n  Start later with: openclaw start ${agentId}\n`)
-    );
+    console.log(chalk.dim(`\n  Start later with: openclaw start ${agentId}\n`));
   }
 }
 
