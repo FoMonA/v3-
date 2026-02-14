@@ -54,7 +54,15 @@ function pkgManager(): "apt" | "yum" | "dnf" | null {
 /** Run a shell command async, streaming output to onLog */
 function runAsync(cmd: string, onLog?: LogFn): Promise<boolean> {
   return new Promise((resolve) => {
-    const child = spawn("bash", ["-c", cmd], { stdio: "pipe" });
+    const child = spawn("bash", ["-c", cmd], {
+      stdio: "pipe",
+      env: {
+        ...process.env,
+        DEBIAN_FRONTEND: "noninteractive",
+        NEEDRESTART_MODE: "a",
+        NEEDRESTART_SUSPEND: "1",
+      },
+    });
 
     const handleData = (data: Buffer) => {
       const lines = data.toString().split("\n").filter(Boolean);
