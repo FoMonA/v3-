@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Text } from "ink";
 import { Spinner } from "@inkjs/ui";
-import { startGateway, checkGatewayStatus } from "../lib/helpers.js";
+import { startGateway, checkGatewayStatus, triggerHeartbeat } from "../lib/helpers.js";
 
 type Props = {
   agentId: string;
@@ -9,20 +9,25 @@ type Props = {
 };
 
 export function AgentLaunch({ agentId, onComplete }: Props) {
-  const [status, setStatus] = useState<"starting" | "ok" | "failed">("starting");
+  const [status, setStatus] = useState<"starting" | "heartbeat" | "ok" | "failed">("starting");
 
   useEffect(() => {
     const run = async () => {
       startGateway();
-      // Give the gateway a moment to start, then verify
-      await new Promise((r) => setTimeout(r, 3000));
-      const result = await checkGatewayStatus();
-      if (result === "running") {
-        setStatus("ok");
-        setTimeout(onComplete, 1500);
-      } else {
-        setStatus("failed");
+      // Retry health check a few times — gateway can take a while to start
+      for (let attempt = 0; attempt < 5; attempt++) {
+        await new Promise((r) => setTimeout(r, 3000));
+        const result = await checkGatewayStatus();
+        if (result === "running") {
+          // Trigger first heartbeat immediately (do-while behavior)
+          setStatus("heartbeat");
+          triggerHeartbeat(agentId);
+          setStatus("ok");
+          setTimeout(onComplete, 1500);
+          return;
+        }
       }
+      setStatus("failed");
     };
     run();
   }, []);
@@ -30,9 +35,11 @@ export function AgentLaunch({ agentId, onComplete }: Props) {
   return (
     <Box flexDirection="column" gap={1}>
       {status === "starting" && <Spinner label="Starting OpenClaw gateway..." />}
+      {status === "heartbeat" && <Spinner label="Triggering first heartbeat..." />}
       {status === "ok" && (
         <Box flexDirection="column">
           <Text color="green">✓ Gateway started — agent {agentId} is active</Text>
+          <Text dimColor>  First heartbeat triggered</Text>
           <Text dimColor>  Stop with: pkill -f 'openclaw gateway'</Text>
         </Box>
       )}

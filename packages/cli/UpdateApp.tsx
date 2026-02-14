@@ -160,10 +160,17 @@ export function UpdateApp() {
       updateTask(4, { status: "active" });
       stopGateway();
       startGateway();
-      // Wait for gateway to come up, then verify
-      await new Promise((r) => setTimeout(r, 3000));
-      const gwStatus = await checkGatewayStatus();
-      if (gwStatus === "running") {
+      // Retry health check — gateway can take a while to start
+      let gwStarted = false;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        await new Promise((r) => setTimeout(r, 3000));
+        const gwStatus = await checkGatewayStatus();
+        if (gwStatus === "running") {
+          gwStarted = true;
+          break;
+        }
+      }
+      if (gwStarted) {
         updateTask(4, { status: "done" });
       } else {
         updateTask(4, { status: "error", detail: "Gateway failed to start — run: openclaw gateway --force" });

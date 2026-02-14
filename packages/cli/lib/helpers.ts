@@ -491,6 +491,14 @@ export async function checkGatewayStatus(): Promise<"running" | "stopped"> {
   });
 }
 
+export function triggerHeartbeat(agentId: string): void {
+  const child = spawn("openclaw", ["agent", "--agent", agentId, "--message", "heartbeat", "--channel", "last"], {
+    detached: true,
+    stdio: "ignore",
+  });
+  child.unref();
+}
+
 // Legacy aliases
 export function startAgent(_agentId: string): void {
   startGateway();
