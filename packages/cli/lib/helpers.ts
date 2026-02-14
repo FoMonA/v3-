@@ -27,6 +27,8 @@ export function generateUserId(address: string): string {
 
 // ─── System checks ──────────────────────────────────────────────────────────
 
+export type LogFn = (line: string) => void;
+
 function hasBin(name: string): boolean {
   try {
     execSync(`which ${name}`, { stdio: "ignore" });
@@ -49,6 +51,26 @@ function pkgManager(): "apt" | "yum" | "dnf" | null {
   return null;
 }
 
+/** Run a shell command async, streaming output to onLog */
+function runAsync(cmd: string, onLog?: LogFn): Promise<boolean> {
+  return new Promise((resolve) => {
+    const child = spawn("bash", ["-c", cmd], { stdio: "pipe" });
+
+    const handleData = (data: Buffer) => {
+      const lines = data.toString().split("\n").filter(Boolean);
+      for (const line of lines) {
+        onLog?.(line);
+      }
+    };
+
+    child.stdout?.on("data", handleData);
+    child.stderr?.on("data", handleData);
+
+    child.on("close", (code) => resolve(code === 0));
+    child.on("error", () => resolve(false));
+  });
+}
+
 export function isRootOrSudo(): boolean {
   if (process.getuid?.() === 0) return true;
   return hasBin("sudo");
@@ -60,19 +82,14 @@ export function isCurlInstalled(): boolean {
   return hasBin("curl");
 }
 
-export function installCurl(): boolean {
+export async function installCurl(onLog?: LogFn): Promise<boolean> {
   const pm = pkgManager();
   if (!pm) return false;
-  try {
-    const install =
-      pm === "apt"
-        ? "apt-get update -y && apt-get install -y curl"
-        : `${pm} install -y curl`;
-    execSync(sudo(install), { stdio: "pipe", timeout: 120_000 });
-    return true;
-  } catch {
-    return false;
-  }
+  const cmd =
+    pm === "apt"
+      ? "apt-get update -y && apt-get install -y curl"
+      : `${pm} install -y curl`;
+  return runAsync(sudo(cmd), onLog);
 }
 
 // ─── Node.js ────────────────────────────────────────────────────────────────
@@ -81,33 +98,23 @@ export function isNodeInstalled(): boolean {
   return hasBin("node");
 }
 
-export function installNode(): boolean {
+export async function installNode(onLog?: LogFn): Promise<boolean> {
   const pm = pkgManager();
   if (!pm) return false;
-  try {
-    if (pm === "apt") {
-      execSync(
-        sudo("bash -c 'curl -fsSL https://deb.nodesource.com/setup_20.x | bash -'"),
-        { stdio: "pipe", timeout: 120_000 },
-      );
-      execSync(sudo("apt-get install -y nodejs"), {
-        stdio: "pipe",
-        timeout: 120_000,
-      });
-    } else {
-      // dnf / yum
-      execSync(
-        sudo(`bash -c 'curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -'`),
-        { stdio: "pipe", timeout: 120_000 },
-      );
-      execSync(sudo(`${pm} install -y nodejs`), {
-        stdio: "pipe",
-        timeout: 120_000,
-      });
-    }
-    return true;
-  } catch {
-    return false;
+  if (pm === "apt") {
+    const setupOk = await runAsync(
+      sudo("bash -c 'curl -fsSL https://deb.nodesource.com/setup_20.x | bash -'"),
+      onLog,
+    );
+    if (!setupOk) return false;
+    return runAsync(sudo("apt-get install -y nodejs"), onLog);
+  } else {
+    const setupOk = await runAsync(
+      sudo(`bash -c 'curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -'`),
+      onLog,
+    );
+    if (!setupOk) return false;
+    return runAsync(sudo(`${pm} install -y nodejs`), onLog);
   }
 }
 
@@ -117,16 +124,8 @@ export function isOpenClawInstalled(): boolean {
   return hasBin("openclaw");
 }
 
-export function installOpenClaw(): boolean {
-  try {
-    execSync(sudo("npm install -g openclaw@latest"), {
-      stdio: "pipe",
-      timeout: 120_000,
-    });
-    return true;
-  } catch {
-    return false;
-  }
+export async function installOpenClaw(onLog?: LogFn): Promise<boolean> {
+  return runAsync(sudo("npm install -g openclaw@latest"), onLog);
 }
 
 export function isValidPrivateKey(key: string): boolean {
