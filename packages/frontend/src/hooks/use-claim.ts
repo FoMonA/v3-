@@ -43,12 +43,10 @@ export function useClaim(proposalId: bigint) {
         "FOMA tokens sent to your wallet",
       );
     } catch (error: unknown) {
+      console.error("Claim failed:", error);
       setStatus("error");
-      // Refetch to restore correct state on failure
       await queryClient.invalidateQueries({ queryKey });
-      const message =
-        error instanceof Error ? error.message : "Claim failed";
-      showToast("error", "Claim failed", message);
+      showToast("error", "Claim failed", "Transaction rejected or reverted");
     }
   }, [address, proposalId, writeContractAsync, queryClient]);
 

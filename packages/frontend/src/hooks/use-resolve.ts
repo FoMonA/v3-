@@ -35,10 +35,9 @@ export function useResolve(proposalId: bigint) {
         "Winners can now claim their rewards",
       );
     } catch (error: unknown) {
+      console.error("Resolve failed:", error);
       setStatus("error");
-      const message =
-        error instanceof Error ? error.message : "Resolve failed";
-      showToast("error", "Resolve failed", message);
+      showToast("error", "Resolve failed", "Transaction rejected or reverted");
     }
   }, [address, proposalId, queryClient, writeContractAsync]);
 

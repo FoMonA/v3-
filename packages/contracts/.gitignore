@@ -14,5 +14,4 @@ docs/
 # Dotenv file
 .env
 
-# Mainnet wallet keys
 mainnet-wallets.json
