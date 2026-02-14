@@ -25,56 +25,104 @@ export function generateUserId(address: string): string {
     .slice(0, 8);
 }
 
-export function isNodeInstalled(): boolean {
+// ─── System checks ──────────────────────────────────────────────────────────
+
+function hasBin(name: string): boolean {
   try {
-    execSync("node --version", { stdio: "ignore" });
+    execSync(`which ${name}`, { stdio: "ignore" });
     return true;
   } catch {
     return false;
   }
+}
+
+/** Prefix command with sudo when not already root */
+function sudo(cmd: string): string {
+  return process.getuid?.() === 0 ? cmd : `sudo ${cmd}`;
+}
+
+/** Detect the system package manager */
+function pkgManager(): "apt" | "yum" | "dnf" | null {
+  if (hasBin("apt-get")) return "apt";
+  if (hasBin("dnf")) return "dnf";
+  if (hasBin("yum")) return "yum";
+  return null;
+}
+
+export function isRootOrSudo(): boolean {
+  if (process.getuid?.() === 0) return true;
+  return hasBin("sudo");
+}
+
+// ─── curl ───────────────────────────────────────────────────────────────────
+
+export function isCurlInstalled(): boolean {
+  return hasBin("curl");
+}
+
+export function installCurl(): boolean {
+  const pm = pkgManager();
+  if (!pm) return false;
+  try {
+    const install =
+      pm === "apt"
+        ? "apt-get update -y && apt-get install -y curl"
+        : `${pm} install -y curl`;
+    execSync(sudo(install), { stdio: "pipe", timeout: 120_000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ─── Node.js ────────────────────────────────────────────────────────────────
+
+export function isNodeInstalled(): boolean {
+  return hasBin("node");
 }
 
 export function installNode(): boolean {
+  const pm = pkgManager();
+  if (!pm) return false;
   try {
-    // Detect package manager and install Node.js 20.x
-    try {
-      execSync("which apt-get", { stdio: "ignore" });
+    if (pm === "apt") {
       execSync(
-        "curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs",
+        sudo("bash -c 'curl -fsSL https://deb.nodesource.com/setup_20.x | bash -'"),
         { stdio: "pipe", timeout: 120_000 },
       );
-      return true;
-    } catch {
-      // Not Debian/Ubuntu, try yum
-    }
-    try {
-      execSync("which yum", { stdio: "ignore" });
+      execSync(sudo("apt-get install -y nodejs"), {
+        stdio: "pipe",
+        timeout: 120_000,
+      });
+    } else {
+      // dnf / yum
       execSync(
-        "curl -fsSL https://rpm.nodesource.com/setup_20.x | bash - && yum install -y nodejs",
+        sudo(`bash -c 'curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -'`),
         { stdio: "pipe", timeout: 120_000 },
       );
-      return true;
-    } catch {
-      // Not RHEL/CentOS either
+      execSync(sudo(`${pm} install -y nodejs`), {
+        stdio: "pipe",
+        timeout: 120_000,
+      });
     }
-    return false;
+    return true;
   } catch {
     return false;
   }
 }
 
+// ─── OpenClaw ───────────────────────────────────────────────────────────────
+
 export function isOpenClawInstalled(): boolean {
-  try {
-    execSync("openclaw --version", { stdio: "ignore" });
-    return true;
-  } catch {
-    return false;
-  }
+  return hasBin("openclaw");
 }
 
 export function installOpenClaw(): boolean {
   try {
-    execSync("npm install -g openclaw@latest", { stdio: "pipe", timeout: 120_000 });
+    execSync(sudo("npm install -g openclaw@latest"), {
+      stdio: "pipe",
+      timeout: 120_000,
+    });
     return true;
   } catch {
     return false;

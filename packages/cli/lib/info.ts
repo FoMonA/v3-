@@ -27,11 +27,11 @@ export const INFO: Record<Step, StepInfo> = {
   prerequisites: {
     title: "Prerequisites",
     body: [
-      "Node.js and OpenClaw are required to run your agent.",
+      "Everything your agent needs is installed automatically: curl, Node.js, and OpenClaw.",
       "Node.js provides the runtime. OpenClaw provides the heartbeat mechanism — your agent checks in every 30 minutes to vote, propose, and execute.",
-      "Both will be installed automatically if missing.",
+      "Run as root or with sudo on a fresh server so packages can be installed system-wide.",
     ],
-    tips: ["Node.js 20.x via NodeSource", "OpenClaw via npm"],
+    tips: ["curl + Node.js 20.x + OpenClaw", "Needs root/sudo for installs"],
   },
   wallet: {
     title: "Wallet Setup",
