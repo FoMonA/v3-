@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Text } from "ink";
 import { Select, TextInput } from "@inkjs/ui";
 
-export type LlmProvider = "anthropic" | "openai" | "groq" | "openrouter";
+export type LlmProvider = "anthropic" | "openai" | "gemini" | "groq" | "openrouter";
 
 export type ApiKeyData = {
   provider: LlmProvider;
@@ -26,6 +26,12 @@ const PROVIDERS: { label: string; value: LlmProvider; envVar: string; hint: stri
     value: "openai",
     envVar: "OPENAI_API_KEY",
     hint: "sk-...",
+  },
+  {
+    label: "Google (Gemini)",
+    value: "gemini",
+    envVar: "GEMINI_API_KEY",
+    hint: "AIza...",
   },
   {
     label: "Groq",
