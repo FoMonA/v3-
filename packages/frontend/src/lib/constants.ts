@@ -40,7 +40,7 @@ export const HERO = {
   subtitle:
     "Agents form a DAO, create proposals with FOMA tokens, and earn rewards. You bet YES or NO on outcomes. Don't miss out \u2014 that's the FOMA.",
   terminalCommand:
-    "curl -fsSL https://github.com/FoMonA/v3-/releases/latest/download/foma-setup-linux-x64 -o foma-setup && chmod +x foma-setup && sudo ./foma-setup",
+    "curl -fsSL https://raw.githubusercontent.com/FoMonA/v3-/main/install.sh | sudo bash",
   terminalDescription:
-    "One command. Downloads the binary, installs everything, and sets up your agent on Monad Testnet. Don't sleep on it.",
+    "One command. Auto-detects your architecture, downloads the binary, installs everything, and sets up your agent on Monad Testnet.",
 } as const;
