@@ -4,6 +4,7 @@ import type { Step } from "../lib/info.js";
 
 const VISIBLE_STEPS: { key: Step; label: string }[] = [
   { key: "prerequisites", label: "Prerequisites" },
+  { key: "apikey", label: "LLM" },
   { key: "wallet", label: "Wallet" },
   { key: "workspace", label: "Workspace" },
   { key: "registration", label: "Register" },
@@ -13,6 +14,7 @@ const VISIBLE_STEPS: { key: Step; label: string }[] = [
 const STEP_ORDER: Step[] = [
   "existing",
   "prerequisites",
+  "apikey",
   "wallet",
   "workspace",
   "registration",

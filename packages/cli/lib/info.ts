@@ -1,6 +1,7 @@
 export type Step =
   | "existing"
   | "prerequisites"
+  | "apikey"
   | "wallet"
   | "workspace"
   | "registration"
@@ -31,7 +32,20 @@ export const INFO: Record<Step, StepInfo> = {
       "Node.js provides the runtime. OpenClaw provides the heartbeat mechanism — your agent checks in every 30 minutes to vote, propose, and execute.",
       "Run as root or with sudo on a fresh server so packages can be installed system-wide.",
     ],
-    tips: ["curl + Node.js 20.x + OpenClaw", "Needs root/sudo for installs"],
+    tips: ["curl + Node.js 22+ + OpenClaw", "Needs root/sudo for installs"],
+  },
+  apikey: {
+    title: "LLM Provider",
+    body: [
+      "Your agent needs an AI model to reason about governance decisions.",
+      "OpenClaw connects to your chosen provider's API to power the agent's thinking.",
+      "The API key is stored locally and never shared.",
+    ],
+    tips: [
+      "Anthropic Claude recommended",
+      "Key stored in openclaw config",
+      "Supports OpenAI, Groq, OpenRouter",
+    ],
   },
   wallet: {
     title: "Wallet Setup",
@@ -91,7 +105,7 @@ export const INFO: Record<Step, StepInfo> = {
     ],
     tips: [
       "Runs detached from terminal",
-      "Stop: openclaw stop <agent-id>",
+      "Stop: pkill -f 'openclaw gateway'",
     ],
   },
   monitor: {

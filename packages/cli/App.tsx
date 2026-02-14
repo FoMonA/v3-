@@ -5,17 +5,19 @@ import { StepProgress } from "./components/StepProgress.js";
 import { Layout } from "./components/Layout.js";
 import { ExistingWorkspace } from "./steps/ExistingWorkspace.js";
 import { Prerequisites } from "./steps/Prerequisites.js";
+import { ApiKeySetup, type ApiKeyData } from "./steps/ApiKeySetup.js";
 import { WalletSetup } from "./steps/WalletSetup.js";
 import { WorkspaceSetup } from "./steps/WorkspaceSetup.js";
 import { Registration } from "./steps/Registration.js";
 import { Summary } from "./steps/Summary.js";
 import { AgentLaunch } from "./steps/AgentLaunch.js";
 import { BalanceMonitor } from "./steps/BalanceMonitor.js";
-import { findWorkspaces } from "./lib/helpers.js";
+import { findWorkspaces, saveApiKey } from "./lib/helpers.js";
 import type { Step } from "./lib/info.js";
 
 type SetupData = {
   wallet?: { address: string; privateKey: string; userId: string; minFoma: number };
+  apiKey?: ApiKeyData;
   workspace?: { path: string; agentId: string };
   registered?: boolean;
   agentStarted?: boolean;
@@ -58,7 +60,18 @@ export function App({ onSwitchToUpdate }: Props) {
 
       case "prerequisites":
         return (
-          <Prerequisites onComplete={() => setCurrentStep("wallet")} />
+          <Prerequisites onComplete={() => setCurrentStep("apikey")} />
+        );
+
+      case "apikey":
+        return (
+          <ApiKeySetup
+            onComplete={async (data) => {
+              await saveApiKey(data.envVar, data.apiKey);
+              setSetupData((prev) => ({ ...prev, apiKey: data }));
+              setCurrentStep("wallet");
+            }}
+          />
         );
 
       case "wallet":

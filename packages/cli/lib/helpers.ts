@@ -392,10 +392,45 @@ export async function registerWithApi(
   }
 }
 
+export async function saveApiKey(envVar: string, apiKey: string): Promise<void> {
+  const envFile = path.join(OPENCLAW_DIR, ".env");
+  await ensureDir(OPENCLAW_DIR);
+  let content = "";
+  try {
+    content = await fs.readFile(envFile, "utf-8");
+  } catch {
+    // File doesn't exist yet
+  }
+  const regex = new RegExp(`^${envVar}=.*$`, "m");
+  if (regex.test(content)) {
+    content = content.replace(regex, `${envVar}=${apiKey}`);
+  } else {
+    content = content.trimEnd() + `\n${envVar}=${apiKey}\n`;
+  }
+  await fs.writeFile(envFile, content, { mode: 0o600 });
+}
+
 export function startGateway(): void {
+  // Read the openclaw .env to pass API keys to the gateway process
+  let extraEnv: Record<string, string> = {};
+  try {
+    const envFile = path.join(OPENCLAW_DIR, ".env");
+    const content = require("fs").readFileSync(envFile, "utf-8");
+    for (const line of content.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx === -1) continue;
+      extraEnv[trimmed.slice(0, eqIdx)] = trimmed.slice(eqIdx + 1);
+    }
+  } catch {
+    // No .env file
+  }
+
   const child = spawn("openclaw", ["gateway", "--force"], {
     detached: true,
     stdio: "ignore",
+    env: { ...process.env, ...extraEnv },
   });
   child.unref();
 }
