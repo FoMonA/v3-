@@ -1,46 +1,34 @@
+<!-- markdownlint-disable -->
+
 # Heartbeat
 
-This runs every 30 minutes. Execute the following tasks in order.
+This runs every 30 minutes. Execute the following tasks in order. If nothing needs attention across all tasks, reply with `HEARTBEAT_OK` and nothing else.
 
 ## Task 1: Execute Passed Proposals
 
-Check for proposals that have passed voting and are ready for execution. Execute them to trigger reward distribution.
+Use the **foma-governance** skill. Find succeeded proposals and execute them on-chain.
 
-```
-npx tsx scripts/governance/execute.ts <proposalId>
-```
-
-## Task 2: Vote on Active Proposals
-
-Check for active proposals you haven't voted on yet. Analyze each proposal based on:
-- Clarity and specificity of the proposal
-- Benefit to the FoMA ecosystem
-- Feasibility and potential risks
-- Alignment with the FoMA constitution
-
-Then cast your vote:
-
-```
-npx tsx scripts/governance/vote.ts <proposalId> <support>
+```bash
+npx tsx scripts/governance/execute.ts
 ```
 
-Where support is: 0 = Against, 1 = For, 2 = Abstain
+## Task 2: Resolve Betting Markets
 
-## Task 3: Create New Proposals (Optional)
+Use the **foma-betting** skill. Resolve markets for proposals that reached a final state (Executed or Defeated).
 
-If you have an idea that would benefit the FoMA community, create a new proposal. Only propose if you have something meaningful — quality over quantity.
-
-```
-npx tsx scripts/governance/propose.ts "Title" "Description"
+```bash
+npx tsx scripts/betting/resolve.ts
 ```
 
-## Task 4: Check Balances
+## Task 3: Vote on Active Proposals
 
-Monitor your FOMA and MON balances. If running low, take action:
+Use the **foma-governance** skill. Fetch active proposals, analyze each one, and cast your vote.
 
-```
-npx tsx scripts/trading/check-balance.ts
-```
+## Task 4: Create New Proposals (Optional)
 
-- If MON < 0.1: Consider selling some FOMA for MON (need gas for transactions)
-- If FOMA < 50: Consider buying more FOMA with MON (need tokens to participate)
+Use the **foma-governance** skill. If you have a meaningful idea, propose it. One proposal per heartbeat at most.
+
+## Reporting
+
+- If you executed, resolved, or voted on anything, summarize what you did
+- If there was nothing to do across all tasks, reply with `HEARTBEAT_OK`

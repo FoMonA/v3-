@@ -1,0 +1,32 @@
+export declare function generateUserId(address: string): string;
+export declare function isOpenClawInstalled(): boolean;
+export declare function installOpenClaw(): boolean;
+export declare function isValidPrivateKey(key: string): boolean;
+export declare function ensureDir(dir: string): Promise<void>;
+export declare function fetchFileFromGitHub(relativePath: string, destPath: string, replacements?: Record<string, string>): Promise<void>;
+export declare function readJsonFile(filePath: string): Promise<Record<string, unknown>>;
+export declare function pathExists(filePath: string): Promise<boolean>;
+export declare function findWorkspaces(): Promise<string[]>;
+export declare function generateWallet(): {
+    address: string;
+    privateKey: string;
+};
+export declare function importWallet(key: string): {
+    address: string;
+    privateKey: string;
+};
+export declare function writeEnvFile(workspacePath: string, address: string, privateKey: string): Promise<void>;
+export declare function createWorkspaceDir(workspacePath: string): Promise<void>;
+export declare function fetchTemplates(workspacePath: string, address: string, agentId: string): Promise<string[]>;
+export declare function copyRootTemplates(workspacePath: string): Promise<void>;
+export declare function fetchScripts(workspacePath: string): Promise<string[]>;
+export declare function installScriptDeps(workspacePath: string): Promise<void>;
+export declare function updateOpenClawConfig(agentId: string, workspacePath: string): Promise<void>;
+export declare function registerWithApi(address: string, privateKey: string): Promise<{
+    status: "ok" | "exists" | "error";
+    message: string;
+}>;
+export declare function startAgent(agentId: string): void;
+export declare function stopAgent(agentId: string): boolean;
+export declare function getMonBalance(address: string): Promise<string>;
+export declare function getWorkspaceEnv(workspacePath: string): Promise<Record<string, string>>;

@@ -33,11 +33,11 @@ jobs:
 
       - name: Build Linux binary
         working-directory: packages/cli
-        run: bun build --compile --target=bun-linux-x64 index.ts --outfile foma-setup-linux
+        run: bun build --compile --target=bun-linux-x64 index.tsx --outfile foma-setup-linux
 
       - name: Build macOS binary
         working-directory: packages/cli
-        run: bun build --compile --target=bun-darwin-arm64 index.ts --outfile foma-setup-mac
+        run: bun build --compile --target=bun-darwin-arm64 index.tsx --outfile foma-setup-mac
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
