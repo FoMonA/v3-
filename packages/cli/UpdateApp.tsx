@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Box, Text, useApp } from "ink";
-import { Select, Spinner } from "@inkjs/ui";
+import { Select, Spinner, TextInput } from "@inkjs/ui";
 import { Banner } from "./components/Banner.js";
 import { Layout } from "./components/Layout.js";
 import { TaskList, type Task } from "./components/TaskList.js";
@@ -11,6 +11,7 @@ import {
   fetchScripts,
   copyRootTemplates,
   getWorkspaceEnv,
+  setWorkspaceEnvVar,
   generateUserId,
   stopAgent,
   startAgent,
@@ -18,7 +19,7 @@ import {
 import { OPENCLAW_DIR } from "./lib/constants.js";
 import path from "path";
 
-type Phase = "loading" | "select" | "updating" | "done" | "dashboard";
+type Phase = "loading" | "select" | "config" | "updating" | "done" | "dashboard";
 
 const INITIAL_TASKS: Task[] = [
   { label: "Fetch templates", status: "pending" },
@@ -34,6 +35,9 @@ export function UpdateApp() {
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const [agentAddress, setAgentAddress] = useState("");
   const [agentId, setAgentId] = useState("");
+  const [minFoma, setMinFoma] = useState(50);
+  const [existingMinFoma, setExistingMinFoma] = useState<string | null>(null);
+  const [configError, setConfigError] = useState<string | null>(null);
   const { exit } = useApp();
 
   useEffect(() => {
@@ -45,12 +49,47 @@ export function UpdateApp() {
       setWorkspaces(ws);
       if (ws.length === 1) {
         setSelectedWorkspace(ws[0]);
-        setPhase("updating");
+        loadEnvAndConfig(ws[0]);
       } else {
         setPhase("select");
       }
     });
   }, []);
+
+  const loadEnvAndConfig = async (workspace: string) => {
+    const workspacePath = path.join(OPENCLAW_DIR, workspace);
+    try {
+      const env = await getWorkspaceEnv(workspacePath);
+      setAgentAddress(env.AGENT_ADDRESS || "");
+      if (env.AGENT_ADDRESS) {
+        const userId = generateUserId(env.AGENT_ADDRESS);
+        setAgentId(`foma-${userId}`);
+      }
+      if (env.MIN_FOMA_BALANCE) {
+        setExistingMinFoma(env.MIN_FOMA_BALANCE);
+        setMinFoma(parseInt(env.MIN_FOMA_BALANCE, 10) || 50);
+      }
+    } catch {
+      // Continue with defaults
+    }
+    setPhase("config");
+  };
+
+  const handleSelect = (value: string) => {
+    setSelectedWorkspace(value);
+    loadEnvAndConfig(value);
+  };
+
+  const handleMinFoma = (value: string) => {
+    const num = parseInt(value.trim(), 10);
+    if (isNaN(num) || num < 0) {
+      setConfigError("Enter a valid number (e.g. 50)");
+      return;
+    }
+    setConfigError(null);
+    setMinFoma(num);
+    setPhase("updating");
+  };
 
   const updateTask = (index: number, update: Partial<Task>) => {
     setTasks((prev) => prev.map((t, i) => (i === index ? { ...t, ...update } : t)));
@@ -62,26 +101,13 @@ export function UpdateApp() {
     const run = async () => {
       const workspacePath = path.join(OPENCLAW_DIR, selectedWorkspace);
 
-      // Read env for template replacements and dashboard
-      let address = "";
-      let id = "";
-      try {
-        const env = await getWorkspaceEnv(workspacePath);
-        address = env.AGENT_ADDRESS || "";
-        if (address) {
-          const userId = generateUserId(address);
-          id = `foma-${userId}`;
-        }
-      } catch {
-        // Continue without replacements
-      }
-      setAgentAddress(address);
-      setAgentId(id);
+      // Save minFoma to .env
+      await setWorkspaceEnvVar(workspacePath, "MIN_FOMA_BALANCE", String(minFoma));
 
       // 1. Fetch templates
       updateTask(0, { status: "active" });
       try {
-        const errors = await fetchTemplates(workspacePath, address, id);
+        const errors = await fetchTemplates(workspacePath, agentAddress, agentId, minFoma);
         updateTask(0, {
           status: "done",
           detail: errors.length > 0 ? `${errors.length} warning(s)` : undefined,
@@ -122,20 +148,13 @@ export function UpdateApp() {
       updateTask(3, { status: "done" });
 
       setPhase("done");
-
-      // Transition to dashboard after a short delay
       setTimeout(() => setPhase("dashboard"), 2000);
     };
 
     run();
   }, [phase, selectedWorkspace]);
 
-  const handleSelect = (value: string) => {
-    setSelectedWorkspace(value);
-    setPhase("updating");
-  };
-
-  // Dashboard phase — full screen, no Layout wrapper
+  // Dashboard phase
   if (phase === "dashboard" && agentAddress) {
     return (
       <Box flexDirection="column">
@@ -164,9 +183,26 @@ export function UpdateApp() {
             </Box>
           )}
 
+          {phase === "config" && (
+            <Box flexDirection="column" gap={1}>
+              <Text dimColor>Workspace: {selectedWorkspace}</Text>
+              <Text> </Text>
+              <Text>Minimum FOMA balance to maintain?</Text>
+              <Text dimColor>
+                Your agent auto-buys FOMA when below this threshold.
+              </Text>
+              <TextInput
+                defaultValue={String(minFoma)}
+                onSubmit={handleMinFoma}
+              />
+              {configError && <Text color="red">{configError}</Text>}
+            </Box>
+          )}
+
           {(phase === "updating" || phase === "done") && (
             <Box flexDirection="column" gap={1}>
               <Text dimColor>Workspace: {selectedWorkspace}</Text>
+              <Text dimColor>Min FOMA: {minFoma}</Text>
               <TaskList tasks={tasks} />
               {phase === "done" && (
                 <Box marginTop={1}>

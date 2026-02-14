@@ -436,3 +436,19 @@ export async function getWorkspaceEnv(
   }
   return vars;
 }
+
+export async function setWorkspaceEnvVar(
+  workspacePath: string,
+  key: string,
+  value: string,
+): Promise<void> {
+  const envPath = path.join(workspacePath, ".env");
+  let content = await fs.readFile(envPath, "utf-8");
+  const regex = new RegExp(`^${key}=.*$`, "m");
+  if (regex.test(content)) {
+    content = content.replace(regex, `${key}=${value}`);
+  } else {
+    content = content.trimEnd() + `\n${key}=${value}\n`;
+  }
+  await fs.writeFile(envPath, content, { mode: 0o600 });
+}
