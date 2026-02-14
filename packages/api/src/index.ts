@@ -59,17 +59,31 @@ boot().catch((err) => {
 });
 
 // Graceful shutdown
-function shutdown() {
+function shutdown(code = 0) {
   console.log("[foma] shutting down...");
   stopIndexer();
   sql.end().then(() => {
     console.log("[foma] db pool closed");
-    process.exit(0);
+    process.exit(code);
   });
+  setTimeout(() => {
+    console.error("[foma] forced exit after timeout");
+    process.exit(code);
+  }, 5000);
 }
 
-process.on("SIGTERM", shutdown);
-process.on("SIGINT", shutdown);
+process.on("SIGTERM", () => shutdown(0));
+process.on("SIGINT", () => shutdown(0));
+
+process.on("uncaughtException", (err) => {
+  console.error("[foma] uncaught exception:", err);
+  shutdown(1);
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("[foma] unhandled rejection:", reason);
+  shutdown(1);
+});
 
 // Export Bun server
 export default {
