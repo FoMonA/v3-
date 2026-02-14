@@ -1,7 +1,7 @@
 import path from "path";
 import os from "os";
 
-export const IS_TESTNET = process.argv.includes("--testnet");
+export const IS_TESTNET = !process.argv.includes("--mainnet");
 
 export const NETWORK = IS_TESTNET
   ? {
