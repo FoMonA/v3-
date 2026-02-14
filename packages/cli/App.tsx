@@ -125,7 +125,12 @@ export function App({ onSwitchToUpdate }: Props) {
         );
 
       case "monitor":
-        return <BalanceMonitor address={setupData.wallet!.address} />;
+        return (
+          <BalanceMonitor
+            address={setupData.wallet!.address}
+            agentId={setupData.workspace!.agentId}
+          />
+        );
 
       default:
         return null;

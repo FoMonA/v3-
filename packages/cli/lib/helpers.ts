@@ -391,6 +391,32 @@ export async function getMonBalance(address: string): Promise<string> {
   return ethers.formatEther(balance);
 }
 
+const ERC20_BALANCE_ABI = [
+  {
+    inputs: [{ name: "account", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+] as const;
+
+export async function getFomaBalance(address: string): Promise<string> {
+  const { createPublicClient, http, formatUnits } = await import("viem");
+  const { monadTestnet } = await import("viem/chains");
+  const client = createPublicClient({
+    chain: IS_TESTNET ? monadTestnet : monadTestnet, // TODO: add mainnet chain
+    transport: http(NETWORK.rpc),
+  });
+  const balance = await client.readContract({
+    address: CONTRACT_ADDRESSES.FOMA as `0x${string}`,
+    abi: ERC20_BALANCE_ABI,
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
+  });
+  return formatUnits(balance, 18);
+}
+
 export async function getWorkspaceEnv(
   workspacePath: string,
 ): Promise<Record<string, string>> {
