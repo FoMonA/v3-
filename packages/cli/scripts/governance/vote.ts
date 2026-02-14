@@ -4,8 +4,9 @@
  * Usage: npx tsx scripts/governance/vote.ts <proposalId> <support>
  *   support: 0 = Against, 1 = For
  */
-import { getWalletClient } from "../lib/wallet.js";
-import { getPublicClient, CONTRACTS, governorAbi } from "../lib/contracts.js";
+import { formatUnits, parseEther } from "viem";
+import { getAccount, getWalletClient } from "../lib/wallet.js";
+import { getPublicClient, CONTRACTS, governorAbi, erc20Abi } from "../lib/contracts.js";
 
 async function main() {
   const [proposalId, supportStr] = process.argv.slice(2);
@@ -24,30 +25,59 @@ async function main() {
     process.exit(1);
   }
 
+  const account = getAccount();
   const wallet = getWalletClient();
   const publicClient = getPublicClient();
+
+  // Check FOMA balance (voting costs 1 FOMA)
+  const fomaBalance = await publicClient.readContract({
+    address: CONTRACTS.FOMA,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [account.address],
+  });
+
+  const voteCost = parseEther("1");
+  if (fomaBalance < voteCost) {
+    console.error(
+      `Insufficient FOMA: have ${formatUnits(fomaBalance, 18)}, need 1 FOMA to vote`,
+    );
+    process.exit(1);
+  }
 
   console.log(
     `Voting ${support === 1 ? "FOR" : "AGAINST"} proposal ${proposalId}...`,
   );
 
-  const txHash = await wallet.writeContract({
-    address: CONTRACTS.GOVERNOR,
-    abi: governorAbi,
-    functionName: "castVote",
-    args: [BigInt(proposalId), support],
-  });
+  try {
+    const txHash = await wallet.writeContract({
+      address: CONTRACTS.GOVERNOR,
+      abi: governorAbi,
+      functionName: "castVote",
+      args: [BigInt(proposalId), support],
+    });
 
-  const receipt = await publicClient.waitForTransactionReceipt({
-    hash: txHash,
-  });
+    const receipt = await publicClient.waitForTransactionReceipt({
+      hash: txHash,
+    });
 
-  if (receipt.status === "reverted") {
-    console.error("Vote reverted!");
-    process.exit(1);
+    if (receipt.status === "reverted") {
+      console.error("Vote reverted!");
+      process.exit(1);
+    }
+
+    console.log(`Vote cast! tx: ${txHash}`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("already voted") || msg.includes("GovernorAlreadyCastVote")) {
+      console.log("Already voted on this proposal, skipping.");
+    } else if (msg.includes("not active") || msg.includes("GovernorUnexpectedProposalState")) {
+      console.log("Proposal is not in active voting state, skipping.");
+    } else {
+      console.error("Error:", msg);
+      process.exit(1);
+    }
   }
-
-  console.log(`Vote cast! tx: ${txHash}`);
 }
 
 main().catch((err) => {

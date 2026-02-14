@@ -4,12 +4,14 @@
  * Usage: npx tsx scripts/governance/propose.ts <categoryId> "Title" "Description"
  *   categoryId: 0=Tech, 1=Trading, 2=Socials, 3=Meme, 4=NFT
  */
-import { getWalletClient } from "../lib/wallet.js";
+import { formatUnits, parseEther } from "viem";
+import { getAccount, getWalletClient } from "../lib/wallet.js";
 import {
   getPublicClient,
   CONTRACTS,
   CATEGORIES,
   governorAbi,
+  erc20Abi,
 } from "../lib/contracts.js";
 
 async function main() {
@@ -31,8 +33,25 @@ async function main() {
 
   const fullDescription = description ? `${title}\n${description}` : title;
 
+  const account = getAccount();
   const wallet = getWalletClient();
   const publicClient = getPublicClient();
+
+  // Check FOMA balance (proposals cost 0-100 FOMA)
+  const fomaBalance = await publicClient.readContract({
+    address: CONTRACTS.FOMA,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [account.address],
+  });
+
+  const maxCost = parseEther("100");
+  if (fomaBalance < maxCost) {
+    console.error(
+      `Insufficient FOMA: have ${formatUnits(fomaBalance, 18)}, need up to 100 for proposal cost`,
+    );
+    process.exit(1);
+  }
 
   console.log(`Creating proposal in ${CATEGORIES[categoryId]}...`);
   console.log(`  Title: ${title}`);

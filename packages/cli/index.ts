@@ -245,12 +245,46 @@ async function updateWorkspace() {
   }
 
   const workspacePath = path.join(openclawDir, workspaceName);
+
+  // Read agent address from workspace .env to apply template replacements
+  const envPath = path.join(workspacePath, ".env");
+  let templateReplacements: Record<string, string> | undefined;
+  try {
+    const envContent = await fs.readFile(envPath, "utf-8");
+    const envVars: Record<string, string> = {};
+    for (const line of envContent.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx === -1) continue;
+      envVars[trimmed.slice(0, eqIdx)] = trimmed.slice(eqIdx + 1);
+    }
+    if (envVars.AGENT_ADDRESS) {
+      const userId = generateUserId(envVars.AGENT_ADDRESS);
+      templateReplacements = {
+        "{{AGENT_ADDRESS}}": envVars.AGENT_ADDRESS,
+        "{{AGENT_ID}}": `foma-${userId}`,
+      };
+    }
+  } catch {
+    // .env missing or unreadable, skip replacements
+  }
+
   const spinner = ora("Fetching latest templates from GitHub...").start();
 
-  const allFiles = [...TEMPLATE_FILES, ...SCRIPT_FILES];
   const errors: string[] = [];
 
-  for (const file of allFiles) {
+  for (const file of TEMPLATE_FILES) {
+    try {
+      const dest = path.join(workspacePath, file);
+      await fetchFileFromGitHub(file, dest, templateReplacements);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      errors.push(`  - ${file}: ${msg}`);
+    }
+  }
+
+  for (const file of SCRIPT_FILES) {
     try {
       const dest = path.join(workspacePath, file);
       await fetchFileFromGitHub(file, dest);

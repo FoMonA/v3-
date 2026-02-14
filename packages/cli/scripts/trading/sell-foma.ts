@@ -4,7 +4,7 @@
  * Usage: npx tsx scripts/trading/sell-foma.ts <fomaAmount>
  *   fomaAmount: Amount of FOMA to sell (in whole tokens, e.g. "100")
  */
-import { formatUnits, parseEther, encodeFunctionData } from "viem";
+import { formatUnits, parseEther, encodeFunctionData, maxUint256 } from "viem";
 import { getAccount, getWalletClient } from "../lib/wallet.js";
 import {
   getPublicClient,
@@ -72,7 +72,7 @@ async function main() {
       address: CONTRACTS.FOMA,
       abi: erc20Abi,
       functionName: "approve",
-      args: [router, fomaAmount],
+      args: [router, maxUint256],
     });
     await publicClient.waitForTransactionReceipt({ hash: approveTx });
     console.log(`Approved! tx: ${approveTx}`);

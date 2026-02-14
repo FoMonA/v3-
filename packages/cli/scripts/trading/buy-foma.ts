@@ -22,6 +22,15 @@ async function main() {
   const publicClient = getPublicClient();
   const wallet = getWalletClient();
 
+  // Check MON balance
+  const monBalance = await publicClient.getBalance({ address: account.address });
+  if (monBalance < monAmount) {
+    console.error(
+      `Insufficient MON: have ${formatUnits(monBalance, 18)}, need ${formatUnits(monAmount, 18)}`,
+    );
+    process.exit(1);
+  }
+
   console.log(`Buying FOMA with ${formatUnits(monAmount, 18)} MON...`);
 
   // Get quote from Lens
