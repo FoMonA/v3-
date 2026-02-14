@@ -17,6 +17,12 @@ const monad = defineChain({
   blockExplorers: {
     default: { name: "Explorer", url: config.network.explorer },
   },
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      blockCreated: 251449,
+    },
+  },
 });
 
 export const publicClient = createPublicClient({
