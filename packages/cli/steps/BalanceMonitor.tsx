@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Box, Text, useApp, useInput } from "ink";
-import { getMonBalance, getFomaBalance, checkGatewayStatus } from "../lib/helpers.js";
+import { getMonBalance, getFomaBalance, checkGatewayStatus, stopGateway } from "../lib/helpers.js";
 import { NETWORK, CONTRACT_ADDRESSES } from "../lib/constants.js";
 
 type Props = {
@@ -72,6 +72,10 @@ export function BalanceMonitor({ address, agentId }: Props) {
 
   useInput((input) => {
     if (input === "q") {
+      stopGateway();
+      exit();
+    }
+    if (input === "b") {
       exit();
     }
   });
@@ -284,9 +288,11 @@ export function BalanceMonitor({ address, agentId }: Props) {
         <Text dimColor>·</Text>
         <Text dimColor>Refreshes every 30s</Text>
         <Text dimColor>·</Text>
-        <Text dimColor>Press </Text>
-        <Text bold>q</Text>
-        <Text dimColor> to exit</Text>
+        <Text bold color="red">q</Text>
+        <Text dimColor> stop agent</Text>
+        <Text dimColor>·</Text>
+        <Text bold color="green">b</Text>
+        <Text dimColor> background</Text>
         <Text dimColor>·</Text>
         {agentStatus === "checking" && <Text dimColor>Checking agent...</Text>}
         {agentStatus === "running" && <Text color="green">Agent running</Text>}
