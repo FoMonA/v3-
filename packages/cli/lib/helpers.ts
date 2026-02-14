@@ -382,21 +382,40 @@ export async function registerWithApi(
   }
 }
 
-export function startAgent(agentId: string): void {
-  const child = spawn("openclaw", ["start", agentId], {
+export function startGateway(): void {
+  const child = spawn("openclaw", ["gateway", "--force"], {
     detached: true,
     stdio: "ignore",
   });
   child.unref();
 }
 
-export function stopAgent(agentId: string): boolean {
+export function stopGateway(): boolean {
   try {
-    execSync(`openclaw stop ${agentId}`, { stdio: "ignore" });
+    execSync("pkill -f 'openclaw gateway'", { stdio: "ignore" });
     return true;
   } catch {
     return false;
   }
+}
+
+export async function checkGatewayStatus(): Promise<"running" | "stopped"> {
+  return new Promise((resolve) => {
+    const child = spawn("openclaw", ["health"], { stdio: "pipe", timeout: 5000 });
+    let output = "";
+    child.stdout?.on("data", (d: Buffer) => { output += d.toString(); });
+    child.on("close", (code) => resolve(code === 0 ? "running" : "stopped"));
+    child.on("error", () => resolve("stopped"));
+  });
+}
+
+// Legacy aliases
+export function startAgent(_agentId: string): void {
+  startGateway();
+}
+
+export function stopAgent(_agentId: string): boolean {
+  return stopGateway();
 }
 
 export async function getMonBalance(address: string): Promise<string> {

@@ -14,8 +14,9 @@ import {
   setWorkspaceEnvVar,
   generateUserId,
   updateOpenClawConfig,
-  stopAgent,
-  startAgent,
+  stopGateway,
+  startGateway,
+  checkGatewayStatus,
 } from "./lib/helpers.js";
 import { OPENCLAW_DIR } from "./lib/constants.js";
 import path from "path";
@@ -27,7 +28,7 @@ const INITIAL_TASKS: Task[] = [
   { label: "Fetch scripts", status: "pending" },
   { label: "Copy root templates", status: "pending" },
   { label: "Update OpenClaw config", status: "pending" },
-  { label: "Restart agent", status: "pending" },
+  { label: "Restart gateway", status: "pending" },
 ];
 
 export function UpdateApp() {
@@ -152,12 +153,18 @@ export function UpdateApp() {
         updateTask(3, { status: "error", detail: msg });
       }
 
-      // 5. Restart agent
+      // 5. Restart gateway
       updateTask(4, { status: "active" });
-      const wsAgentId = selectedWorkspace.replace("workspace-", "");
-      stopAgent(wsAgentId);
-      startAgent(wsAgentId);
-      updateTask(4, { status: "done" });
+      stopGateway();
+      startGateway();
+      // Wait for gateway to come up, then verify
+      await new Promise((r) => setTimeout(r, 3000));
+      const gwStatus = await checkGatewayStatus();
+      if (gwStatus === "running") {
+        updateTask(4, { status: "done" });
+      } else {
+        updateTask(4, { status: "error", detail: "Gateway failed to start — run: openclaw gateway --force" });
+      }
 
       setPhase("done");
       setTimeout(() => setPhase("dashboard"), 2000);

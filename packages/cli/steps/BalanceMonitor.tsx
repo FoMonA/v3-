@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Box, Text, useApp, useInput } from "ink";
-import { getMonBalance, getFomaBalance } from "../lib/helpers.js";
+import { getMonBalance, getFomaBalance, checkGatewayStatus } from "../lib/helpers.js";
 import { NETWORK, CONTRACT_ADDRESSES } from "../lib/constants.js";
 
 type Props = {
@@ -67,6 +67,7 @@ export function BalanceMonitor({ address, agentId }: Props) {
   const prevBalances = useRef<{ mon: number; foma: number } | null>(null);
   const [deltas, setDeltas] = useState<{ mon: string; foma: string }>({ mon: "", foma: "" });
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
+  const [agentStatus, setAgentStatus] = useState<"checking" | "running" | "stopped">("checking");
   const { exit } = useApp();
 
   useInput((input) => {
@@ -82,6 +83,8 @@ export function BalanceMonitor({ address, agentId }: Props) {
 
   const fetchBalances = async () => {
     const updatedAt = new Date().toLocaleTimeString();
+    // Check agent status in parallel with balances
+    checkGatewayStatus().then(setAgentStatus);
     try {
       const [mon, foma] = await Promise.all([
         getMonBalance(address),
@@ -285,7 +288,9 @@ export function BalanceMonitor({ address, agentId }: Props) {
         <Text bold>q</Text>
         <Text dimColor> to exit</Text>
         <Text dimColor>·</Text>
-        <Text color="green">Agent running</Text>
+        {agentStatus === "checking" && <Text dimColor>Checking agent...</Text>}
+        {agentStatus === "running" && <Text color="green">Agent running</Text>}
+        {agentStatus === "stopped" && <Text color="red">Agent stopped — run: openclaw gateway --force</Text>}
       </Box>
     </Box>
   );
