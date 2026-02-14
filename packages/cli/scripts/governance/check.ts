@@ -32,26 +32,56 @@ import {
 import { registerAgent } from "../lib/api.js";
 
 const MIN_MON = parseEther("0.1");
-const MIN_FOMA = parseEther("200");
-const BUY_MON_AMOUNT = parseEther("0.5");
+const MIN_FOMA_ENV = parseInt(process.env.MIN_FOMA_BALANCE ?? "100", 10);
+const MIN_FOMA = parseEther(String(MIN_FOMA_ENV));
 const POLL_INTERVAL_MS = 5_000;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function buyFomaOnNadFun(account: { address: Address }) {
+async function buyFomaOnNadFun(account: { address: Address }, targetFoma: number) {
   const publicClient = getPublicClient();
   const wallet = getWalletClient();
 
-  console.log(`\nBuying FOMA on nad.fun with ${formatUnits(BUY_MON_AMOUNT, 18)} MON...`);
-
-  // Get quote from Lens
-  const [router, amountOut] = await publicClient.readContract({
+  // Get rate by quoting 0.01 MON
+  const probeMon = parseEther("0.01");
+  const [router, probeOut] = await publicClient.readContract({
     address: NAD_FUN.LENS,
     abi: nadFunLensAbi,
     functionName: "getAmountOut",
-    args: [CONTRACTS.FOMA, BUY_MON_AMOUNT, true],
+    args: [CONTRACTS.FOMA, probeMon, true],
+  });
+
+  const probeOutFloat = parseFloat(formatUnits(probeOut, 18));
+  if (probeOutFloat <= 0) {
+    throw new Error("Could not get FOMA price from Lens");
+  }
+
+  const rate = probeOutFloat / 0.01;
+  const monNeeded = targetFoma / rate;
+  // 15% buffer for slippage
+  const monToSpend = monNeeded * 1.15;
+
+  // Keep at least 0.05 MON for gas
+  const monBalance = await publicClient.getBalance({ address: account.address });
+  const monFloat = parseFloat(formatUnits(monBalance, 18));
+  const maxSpend = monFloat - 0.05;
+  if (maxSpend <= 0) {
+    throw new Error(`Not enough MON for gas. Have ${monFloat.toFixed(4)} MON.`);
+  }
+
+  const actualSpend = Math.min(monToSpend, maxSpend);
+  const monAmount = parseEther(actualSpend.toFixed(18));
+
+  console.log(`\nBuying ~${targetFoma} FOMA with ${actualSpend.toFixed(6)} MON...`);
+
+  // Get exact quote
+  const [finalRouter, amountOut] = await publicClient.readContract({
+    address: NAD_FUN.LENS,
+    abi: nadFunLensAbi,
+    functionName: "getAmountOut",
+    args: [CONTRACTS.FOMA, monAmount, true],
   });
 
   console.log(`Expected FOMA out: ${formatUnits(amountOut, 18)}`);
@@ -74,9 +104,9 @@ async function buyFomaOnNadFun(account: { address: Address }) {
   });
 
   const txHash = await wallet.sendTransaction({
-    to: router,
+    to: finalRouter,
     data: callData,
-    value: BUY_MON_AMOUNT,
+    value: monAmount,
   });
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
@@ -124,10 +154,10 @@ async function main() {
   });
 
   if (fomaBalance < MIN_FOMA) {
-    console.log(`\nFOMA balance: ${formatUnits(fomaBalance, 18)} FOMA (need at least 200)`);
+    console.log(`\nFOMA balance: ${formatUnits(fomaBalance, 18)} FOMA (need at least ${MIN_FOMA_ENV})`);
 
     // Auto-buy on nad.fun (works on both testnet and mainnet)
-    await buyFomaOnNadFun(account);
+    await buyFomaOnNadFun(account, MIN_FOMA_ENV);
 
     fomaBalance = await publicClient.readContract({
       address: CONTRACTS.FOMA,
