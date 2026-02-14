@@ -397,6 +397,38 @@ export async function registerWithApi(
   }
 }
 
+const API_KEY_ENV_VARS = [
+  "ANTHROPIC_API_KEY",
+  "OPENAI_API_KEY",
+  "GEMINI_API_KEY",
+  "GROQ_API_KEY",
+  "OPENROUTER_API_KEY",
+];
+
+export async function getExistingApiKey(): Promise<{
+  envVar: string;
+  maskedKey: string;
+} | null> {
+  const envFile = path.join(OPENCLAW_DIR, ".env");
+  let content: string;
+  try {
+    content = await fs.readFile(envFile, "utf-8");
+  } catch {
+    return null;
+  }
+  for (const envVar of API_KEY_ENV_VARS) {
+    const match = content.match(new RegExp(`^${envVar}=(.+)$`, "m"));
+    if (match && match[1].trim()) {
+      const key = match[1].trim();
+      const masked = key.length > 8
+        ? key.slice(0, 4) + "..." + key.slice(-4)
+        : "****";
+      return { envVar, maskedKey: masked };
+    }
+  }
+  return null;
+}
+
 export async function saveApiKey(envVar: string, apiKey: string): Promise<void> {
   const envFile = path.join(OPENCLAW_DIR, ".env");
   await ensureDir(OPENCLAW_DIR);

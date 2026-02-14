@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Text } from "ink";
-import { Select, TextInput } from "@inkjs/ui";
+import { Select, TextInput, Spinner } from "@inkjs/ui";
+import { getExistingApiKey } from "../lib/helpers.js";
 
 export type LlmProvider = "anthropic" | "openai" | "gemini" | "groq" | "openrouter";
 
@@ -15,7 +16,7 @@ type Props = {
   onComplete: (data: ApiKeyData) => void;
 };
 
-const PROVIDERS: {
+export const PROVIDERS: {
   label: string;
   value: LlmProvider;
   envVar: string;
@@ -59,11 +60,26 @@ const PROVIDERS: {
   },
 ];
 
-type Phase = "provider" | "key";
+type Phase = "checking" | "detected" | "provider" | "key";
 
 export function ApiKeySetup({ onComplete }: Props) {
-  const [phase, setPhase] = useState<Phase>("provider");
+  const [phase, setPhase] = useState<Phase>("checking");
   const [selected, setSelected] = useState<(typeof PROVIDERS)[number] | null>(null);
+  const [existing, setExisting] = useState<{ provider: (typeof PROVIDERS)[number]; maskedKey: string } | null>(null);
+
+  useEffect(() => {
+    getExistingApiKey().then((found) => {
+      if (found) {
+        const provider = PROVIDERS.find((p) => p.envVar === found.envVar);
+        if (provider) {
+          setExisting({ provider, maskedKey: found.maskedKey });
+          setPhase("detected");
+          return;
+        }
+      }
+      setPhase("provider");
+    });
+  }, []);
 
   const handleProvider = (value: string) => {
     const provider = PROVIDERS.find((p) => p.value === value)!;
@@ -82,9 +98,40 @@ export function ApiKeySetup({ onComplete }: Props) {
     });
   };
 
+  const handleDetectedChoice = (value: string) => {
+    if (value === "keep" && existing) {
+      onComplete({
+        provider: existing.provider.value,
+        apiKey: "",
+        envVar: existing.provider.envVar,
+        model: existing.provider.model,
+      });
+    } else {
+      setPhase("provider");
+    }
+  };
+
   return (
     <Box flexDirection="column" gap={1}>
       <Text bold>LLM Provider</Text>
+
+      {phase === "checking" && <Spinner label="Checking for existing API key..." />}
+
+      {phase === "detected" && existing && (
+        <Box flexDirection="column" gap={1}>
+          <Text color="green">API key detected for {existing.provider.label.split("—")[0].trim()}</Text>
+          <Text dimColor>Key: {existing.maskedKey}</Text>
+          <Text dimColor>Model: {existing.provider.model}</Text>
+          <Text> </Text>
+          <Select
+            options={[
+              { label: "Keep current API key", value: "keep" },
+              { label: "Change provider / key", value: "change" },
+            ]}
+            onChange={handleDetectedChoice}
+          />
+        </Box>
+      )}
 
       {phase === "provider" && (
         <Box flexDirection="column" gap={1}>

@@ -67,7 +67,9 @@ export function App({ onSwitchToUpdate }: Props) {
         return (
           <ApiKeySetup
             onComplete={async (data) => {
-              await saveApiKey(data.envVar, data.apiKey);
+              if (data.apiKey) {
+                await saveApiKey(data.envVar, data.apiKey);
+              }
               setSetupData((prev) => ({ ...prev, apiKey: data }));
               setCurrentStep("wallet");
             }}

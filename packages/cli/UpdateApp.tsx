@@ -227,7 +227,9 @@ export function UpdateApp() {
               <Text dimColor>Min FOMA: {minFoma}</Text>
               <ApiKeySetup
                 onComplete={async (data) => {
-                  await saveApiKey(data.envVar, data.apiKey);
+                  if (data.apiKey) {
+                    await saveApiKey(data.envVar, data.apiKey);
+                  }
                   setApiKeyData(data);
                   setPhase("updating");
                 }}
