@@ -19,6 +19,7 @@ type Props = {
   privateKey: string;
   userId: string;
   minFoma: number;
+  model?: string;
   onComplete: (data: { workspacePath: string; agentId: string }) => void;
 };
 
@@ -31,7 +32,7 @@ const INITIAL_TASKS: Task[] = [
   { label: "Update OpenClaw config", status: "pending" },
 ];
 
-export function WorkspaceSetup({ address, privateKey, userId, minFoma, onComplete }: Props) {
+export function WorkspaceSetup({ address, privateKey, userId, minFoma, model, onComplete }: Props) {
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const [started, setStarted] = useState(false);
 
@@ -112,7 +113,7 @@ export function WorkspaceSetup({ address, privateKey, userId, minFoma, onComplet
       // 6. Update openclaw.json
       updateTask(5, { status: "active" });
       try {
-        await updateOpenClawConfig(agentId, workspacePath);
+        await updateOpenClawConfig(agentId, workspacePath, model);
         updateTask(5, { status: "done" });
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);

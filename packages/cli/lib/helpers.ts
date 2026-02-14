@@ -314,6 +314,7 @@ export async function installScriptDeps(workspacePath: string): Promise<void> {
 export async function updateOpenClawConfig(
   agentId: string,
   workspacePath: string,
+  model?: string,
 ): Promise<void> {
   await ensureDir(OPENCLAW_DIR);
 
@@ -350,12 +351,16 @@ export async function updateOpenClawConfig(
     config.agents as { list: Array<{ id: string }> }
   ).list.filter((a) => a.id !== agentId);
 
-  (config.agents as { list: Array<Record<string, unknown>> }).list.push({
+  const agentEntry: Record<string, unknown> = {
     id: agentId,
     name: "FoMA Agent",
     workspace: workspacePath,
     heartbeat: { every: IS_TESTNET ? "1m" : "30m", target: "last" },
-  });
+  };
+  if (model) {
+    agentEntry.model = model;
+  }
+  (config.agents as { list: Array<Record<string, unknown>> }).list.push(agentEntry);
 
   await fs.writeFile(OPENCLAW_JSON, JSON.stringify(config, null, 2), "utf-8");
 }

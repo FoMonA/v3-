@@ -91,6 +91,7 @@ export function App({ onSwitchToUpdate }: Props) {
             privateKey={setupData.wallet!.privateKey}
             userId={setupData.wallet!.userId}
             minFoma={setupData.wallet!.minFoma}
+            model={setupData.apiKey?.model}
             onComplete={(wsData) => {
               setSetupData((prev) => ({
                 ...prev,

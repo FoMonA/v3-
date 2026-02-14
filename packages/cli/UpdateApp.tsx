@@ -5,6 +5,7 @@ import { Banner } from "./components/Banner.js";
 import { Layout } from "./components/Layout.js";
 import { TaskList, type Task } from "./components/TaskList.js";
 import { BalanceMonitor } from "./steps/BalanceMonitor.js";
+import { ApiKeySetup, type ApiKeyData } from "./steps/ApiKeySetup.js";
 import {
   findWorkspaces,
   fetchTemplates,
@@ -14,6 +15,7 @@ import {
   setWorkspaceEnvVar,
   generateUserId,
   updateOpenClawConfig,
+  saveApiKey,
   stopGateway,
   startGateway,
   checkGatewayStatus,
@@ -21,7 +23,7 @@ import {
 import { OPENCLAW_DIR } from "./lib/constants.js";
 import path from "path";
 
-type Phase = "loading" | "select" | "config" | "updating" | "done" | "dashboard";
+type Phase = "loading" | "select" | "config" | "apikey" | "updating" | "done" | "dashboard";
 
 const INITIAL_TASKS: Task[] = [
   { label: "Fetch templates", status: "pending" },
@@ -41,6 +43,7 @@ export function UpdateApp() {
   const [minFoma, setMinFoma] = useState(50);
   const [existingMinFoma, setExistingMinFoma] = useState<string | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
+  const [apiKeyData, setApiKeyData] = useState<ApiKeyData | null>(null);
   const { exit } = useApp();
 
   useEffect(() => {
@@ -91,7 +94,7 @@ export function UpdateApp() {
     }
     setConfigError(null);
     setMinFoma(num);
-    setPhase("updating");
+    setPhase("apikey");
   };
 
   const updateTask = (index: number, update: Partial<Task>) => {
@@ -143,10 +146,10 @@ export function UpdateApp() {
         updateTask(2, { status: "error", detail: msg });
       }
 
-      // 4. Update OpenClaw config (heartbeat interval etc.)
+      // 4. Update OpenClaw config (heartbeat interval, model etc.)
       updateTask(3, { status: "active" });
       try {
-        await updateOpenClawConfig(agentId, workspacePath);
+        await updateOpenClawConfig(agentId, workspacePath, apiKeyData?.model);
         updateTask(3, { status: "done" });
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -215,6 +218,20 @@ export function UpdateApp() {
                 onSubmit={handleMinFoma}
               />
               {configError && <Text color="red">{configError}</Text>}
+            </Box>
+          )}
+
+          {phase === "apikey" && (
+            <Box flexDirection="column" gap={1}>
+              <Text dimColor>Workspace: {selectedWorkspace}</Text>
+              <Text dimColor>Min FOMA: {minFoma}</Text>
+              <ApiKeySetup
+                onComplete={async (data) => {
+                  await saveApiKey(data.envVar, data.apiKey);
+                  setApiKeyData(data);
+                  setPhase("updating");
+                }}
+              />
             </Box>
           )}
 

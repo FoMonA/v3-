@@ -8,42 +8,54 @@ export type ApiKeyData = {
   provider: LlmProvider;
   apiKey: string;
   envVar: string;
+  model: string;
 };
 
 type Props = {
   onComplete: (data: ApiKeyData) => void;
 };
 
-const PROVIDERS: { label: string; value: LlmProvider; envVar: string; hint: string }[] = [
+const PROVIDERS: {
+  label: string;
+  value: LlmProvider;
+  envVar: string;
+  hint: string;
+  model: string;
+}[] = [
   {
     label: "Anthropic (Claude) — Recommended",
     value: "anthropic",
     envVar: "ANTHROPIC_API_KEY",
     hint: "sk-ant-...",
+    model: "anthropic/claude-sonnet-4-5-20250929",
   },
   {
     label: "OpenAI (GPT)",
     value: "openai",
     envVar: "OPENAI_API_KEY",
     hint: "sk-...",
+    model: "openai/gpt-4o",
   },
   {
     label: "Google (Gemini)",
     value: "gemini",
     envVar: "GEMINI_API_KEY",
     hint: "AIza...",
+    model: "google/gemini-2.5-pro",
   },
   {
     label: "Groq",
     value: "groq",
     envVar: "GROQ_API_KEY",
     hint: "gsk_...",
+    model: "groq/llama-3.3-70b-versatile",
   },
   {
     label: "OpenRouter",
     value: "openrouter",
     envVar: "OPENROUTER_API_KEY",
     hint: "sk-or-...",
+    model: "openrouter/anthropic/claude-sonnet-4-5-20250929",
   },
 ];
 
@@ -66,6 +78,7 @@ export function ApiKeySetup({ onComplete }: Props) {
       provider: selected.value,
       apiKey: trimmed,
       envVar: selected.envVar,
+      model: selected.model,
     });
   };
 
@@ -86,6 +99,7 @@ export function ApiKeySetup({ onComplete }: Props) {
       {phase === "key" && selected && (
         <Box flexDirection="column" gap={1}>
           <Text dimColor>Provider: {selected.label}</Text>
+          <Text dimColor>Model: {selected.model}</Text>
           <Text> </Text>
           <Text>Enter your {selected.label.split(" ")[0]} API key:</Text>
           <Text dimColor>Format: {selected.hint}</Text>
