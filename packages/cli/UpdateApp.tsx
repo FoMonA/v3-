@@ -13,6 +13,7 @@ import {
   getWorkspaceEnv,
   setWorkspaceEnvVar,
   generateUserId,
+  updateOpenClawConfig,
   stopAgent,
   startAgent,
 } from "./lib/helpers.js";
@@ -25,6 +26,7 @@ const INITIAL_TASKS: Task[] = [
   { label: "Fetch templates", status: "pending" },
   { label: "Fetch scripts", status: "pending" },
   { label: "Copy root templates", status: "pending" },
+  { label: "Update OpenClaw config", status: "pending" },
   { label: "Restart agent", status: "pending" },
 ];
 
@@ -140,12 +142,22 @@ export function UpdateApp() {
         updateTask(2, { status: "error", detail: msg });
       }
 
-      // 4. Restart agent
+      // 4. Update OpenClaw config (heartbeat interval etc.)
       updateTask(3, { status: "active" });
+      try {
+        await updateOpenClawConfig(agentId, workspacePath);
+        updateTask(3, { status: "done" });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        updateTask(3, { status: "error", detail: msg });
+      }
+
+      // 5. Restart agent
+      updateTask(4, { status: "active" });
       const wsAgentId = selectedWorkspace.replace("workspace-", "");
       stopAgent(wsAgentId);
       startAgent(wsAgentId);
-      updateTask(3, { status: "done" });
+      updateTask(4, { status: "done" });
 
       setPhase("done");
       setTimeout(() => setPhase("dashboard"), 2000);
