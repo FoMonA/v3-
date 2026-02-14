@@ -58,3 +58,17 @@ export const fomaTokenAbi = parseAbi([
   "function decimals() view returns (uint8)",
   "function totalSupply() view returns (uint256)",
 ]);
+
+// nad.fun contracts (testnet)
+export const NAD_FUN = {
+  LENS: "0xB056d79CA5257589692699a46623F901a3BB76f1" as Address,
+} as const;
+
+export const nadFunLensAbi = parseAbi([
+  "function getAmountOut(address token, uint256 amountIn, bool isBuy) view returns (address router, uint256 amountOut)",
+]);
+
+export const nadFunRouterAbi = parseAbi([
+  "function buy((uint256 amountOutMin, address token, address to, uint256 deadline)) payable",
+  "function sell((uint256 amountIn, uint256 amountOutMin, address token, address to, uint256 deadline))",
+]);
