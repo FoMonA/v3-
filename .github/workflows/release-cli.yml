@@ -31,9 +31,13 @@ jobs:
         working-directory: packages/cli
         run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Build Linux binary
+      - name: Build Linux x64 binary
         working-directory: packages/cli
-        run: bun build --compile --target=bun-linux-x64 index.tsx --outfile foma-setup-linux
+        run: bun build --compile --target=bun-linux-x64 index.tsx --outfile foma-setup-linux-x64
+
+      - name: Build Linux ARM64 binary
+        working-directory: packages/cli
+        run: bun build --compile --target=bun-linux-arm64 index.tsx --outfile foma-setup-linux-arm64
 
       - name: Build macOS binary
         working-directory: packages/cli
@@ -53,7 +57,14 @@ jobs:
 
             **Linux (x64):**
             ```bash
-            curl -fsSL https://github.com/FoMonA/v3-/releases/latest/download/foma-setup-linux -o foma-setup
+            curl -fsSL https://github.com/FoMonA/v3-/releases/latest/download/foma-setup-linux-x64 -o foma-setup
+            chmod +x foma-setup
+            ./foma-setup
+            ```
+
+            **Linux (ARM64):**
+            ```bash
+            curl -fsSL https://github.com/FoMonA/v3-/releases/latest/download/foma-setup-linux-arm64 -o foma-setup
             chmod +x foma-setup
             ./foma-setup
             ```
@@ -65,5 +76,6 @@ jobs:
             ./foma-setup
             ```
           files: |
-            packages/cli/foma-setup-linux
+            packages/cli/foma-setup-linux-x64
+            packages/cli/foma-setup-linux-arm64
             packages/cli/foma-setup-mac
