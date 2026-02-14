@@ -4,6 +4,7 @@ import { Select, Spinner } from "@inkjs/ui";
 import { Banner } from "./components/Banner.js";
 import { Layout } from "./components/Layout.js";
 import { TaskList, type Task } from "./components/TaskList.js";
+import { BalanceMonitor } from "./steps/BalanceMonitor.js";
 import {
   findWorkspaces,
   fetchTemplates,
@@ -17,7 +18,7 @@ import {
 import { OPENCLAW_DIR } from "./lib/constants.js";
 import path from "path";
 
-type Phase = "loading" | "select" | "updating" | "done";
+type Phase = "loading" | "select" | "updating" | "done" | "dashboard";
 
 const INITIAL_TASKS: Task[] = [
   { label: "Fetch templates", status: "pending" },
@@ -31,6 +32,8 @@ export function UpdateApp() {
   const [workspaces, setWorkspaces] = useState<string[]>([]);
   const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
+  const [agentAddress, setAgentAddress] = useState("");
+  const [agentId, setAgentId] = useState("");
   const { exit } = useApp();
 
   useEffect(() => {
@@ -59,24 +62,26 @@ export function UpdateApp() {
     const run = async () => {
       const workspacePath = path.join(OPENCLAW_DIR, selectedWorkspace);
 
-      // Read env for template replacements
+      // Read env for template replacements and dashboard
       let address = "";
-      let agentId = "";
+      let id = "";
       try {
         const env = await getWorkspaceEnv(workspacePath);
         address = env.AGENT_ADDRESS || "";
         if (address) {
           const userId = generateUserId(address);
-          agentId = `foma-${userId}`;
+          id = `foma-${userId}`;
         }
       } catch {
         // Continue without replacements
       }
+      setAgentAddress(address);
+      setAgentId(id);
 
       // 1. Fetch templates
       updateTask(0, { status: "active" });
       try {
-        const errors = await fetchTemplates(workspacePath, address, agentId);
+        const errors = await fetchTemplates(workspacePath, address, id);
         updateTask(0, {
           status: "done",
           detail: errors.length > 0 ? `${errors.length} warning(s)` : undefined,
@@ -117,6 +122,9 @@ export function UpdateApp() {
       updateTask(3, { status: "done" });
 
       setPhase("done");
+
+      // Transition to dashboard after a short delay
+      setTimeout(() => setPhase("dashboard"), 2000);
     };
 
     run();
@@ -126,6 +134,16 @@ export function UpdateApp() {
     setSelectedWorkspace(value);
     setPhase("updating");
   };
+
+  // Dashboard phase — full screen, no Layout wrapper
+  if (phase === "dashboard" && agentAddress) {
+    return (
+      <Box flexDirection="column">
+        <Banner />
+        <BalanceMonitor address={agentAddress} agentId={agentId} />
+      </Box>
+    );
+  }
 
   return (
     <Box flexDirection="column">
@@ -153,7 +171,7 @@ export function UpdateApp() {
               {phase === "done" && (
                 <Box marginTop={1}>
                   <Text color="green">
-                    ✓ Agent {selectedWorkspace.replace("workspace-", "")} restarted with updated files
+                    ✓ Agent {selectedWorkspace.replace("workspace-", "")} restarted — loading dashboard...
                   </Text>
                 </Box>
               )}
