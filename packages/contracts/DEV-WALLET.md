@@ -31,18 +31,49 @@
 | Human 2  | `0x8cE1d72cc86efe4874B8Ebda9f6f2A9D7277C138`                      | `0xfd6129cb9592f1f528bca68f7bd61447d83c45a46f9ebc351f9c88bf3d42f0e3` |
 | Human 3  | `0xD2D0E8ee94eF5F83675E9baCE8ed5f338e4Dc4D3`                      | `0x499948552dbcbc0f6f3892a176969ce30b4e6951f5fdfa10e4ea67c430c3ea80` |
 
+## Deployed Contracts (Mainnet 143)
+
+| Contract    | Address                                      |
+| ----------- | -------------------------------------------- |
+| FOMA        | `0xA1F6152e4203F66349d0c0E53D9E50bA2A057777` |
+| Registry    | `0x6d3920cd0A1996a1c34FC238c9446B7e996eAE52` |
+| Governor    | `0x144e0E78D8D29E79075e3640dcC391B0Da81eadB` |
+| BettingPool | `0x5C7ec54685cD57416FC4e1ba4deB12474D683a4E` |
+
+**Voting Period:** 86400 blocks (~12 hours)
+
+**Deploy Block:** 55363959
+
+**Explorer:** https://monadexplorer.com
+
+### nad.fun Mainnet Contracts
+
+| Contract             | Address                                      |
+| -------------------- | -------------------------------------------- |
+| CURVE                | `0xA7283d07812a02AFB7C09B60f8896bCEA3F90aCE` |
+| BONDING_CURVE_ROUTER | `0x6F6B8F1a20703309951a5127c45B49b1CD981A22` |
+| LENS                 | `0x7e78A8DE94f21804F7a17F4E8BF9EC2c872187ea` |
+| CREATOR_TREASURY     | `0x42e75B4B96d7000E7Da1e0c729Cec8d2049B9731` |
+| API                  | `https://api.nadapp.net`                     |
+
+**Deploy fee:** 10 MON (from `CURVE.feeConfig()`)
+
 ### Check balance
 
 ```bash
+# Testnet
 cast balance 0x03746707814360933738eC292A22B661b60B7F87 --rpc-url https://testnet-rpc.monad.xyz --ether
+
+# Mainnet
+cast balance 0x03746707814360933738eC292A22B661b60B7F87 --rpc-url https://monad.drpc.org --ether
 ```
 
 ### Deploy all contracts
 
 ```bash
-# 6 hour voting (default)
+# Testnet (6 hour voting)
 forge script script/Deploy.s.sol --rpc-url monad_testnet --broadcast
 
-# 12 hour voting (production)
-VOTING_PERIOD=86400 forge script script/Deploy.s.sol --rpc-url monad_testnet --broadcast
+# Mainnet (12 hour voting)
+VOTING_PERIOD=86400 forge script script/Deploy.s.sol --rpc-url monad_mainnet --broadcast
 ```

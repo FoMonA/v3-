@@ -2,7 +2,7 @@ name: Release CLI Binary
 
 on:
   push:
-    branches: [santhosh/main]
+    branches: [dev]
     paths:
       - "packages/cli/**"
 
