@@ -18,7 +18,7 @@ type Props = {
 
 const INITIAL_TASKS: Task[] = [
   { label: "curl", status: "pending" },
-  { label: "Node.js", status: "pending" },
+  { label: "Node.js (≥22.12)", status: "pending" },
   { label: "OpenClaw", status: "pending" },
 ];
 
@@ -39,8 +39,8 @@ const INSTALLERS: Installer[] = [
   {
     check: isNodeInstalled,
     install: installNode,
-    name: "Node.js",
-    errorHint: "https://nodejs.org",
+    name: "Node.js (≥22.12)",
+    errorHint: "https://nodejs.org — install Node.js 22+",
   },
   {
     check: isOpenClawInstalled,

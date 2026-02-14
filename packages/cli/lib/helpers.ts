@@ -103,7 +103,17 @@ export async function installCurl(onLog?: LogFn): Promise<boolean> {
 // ─── Node.js ────────────────────────────────────────────────────────────────
 
 export function isNodeInstalled(): boolean {
-  return hasBin("node");
+  if (!hasBin("node")) return false;
+  try {
+    const version = execSync("node --version", { encoding: "utf-8" }).trim();
+    const match = version.match(/^v(\d+)\.(\d+)/);
+    if (!match) return false;
+    const major = parseInt(match[1], 10);
+    const minor = parseInt(match[2], 10);
+    return major > 22 || (major === 22 && minor >= 12);
+  } catch {
+    return false;
+  }
 }
 
 export async function installNode(onLog?: LogFn): Promise<boolean> {
@@ -111,14 +121,14 @@ export async function installNode(onLog?: LogFn): Promise<boolean> {
   if (!pm) return false;
   if (pm === "apt") {
     const setupOk = await runAsync(
-      sudo("bash -c 'curl -fsSL https://deb.nodesource.com/setup_20.x | bash -'"),
+      sudo("bash -c 'curl -fsSL https://deb.nodesource.com/setup_22.x | bash -'"),
       onLog,
     );
     if (!setupOk) return false;
     return runAsync(sudo("apt-get install -y nodejs"), onLog);
   } else {
     const setupOk = await runAsync(
-      sudo(`bash -c 'curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -'`),
+      sudo(`bash -c 'curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -'`),
       onLog,
     );
     if (!setupOk) return false;
