@@ -73,10 +73,9 @@ export function useBuyFoma() {
           showToast("warning", "Transaction cancelled", "You rejected the transaction");
           return;
         }
+        console.error("Buy failed:", error);
         setStatus("error");
-        const message =
-          error instanceof Error ? error.message.split("\n")[0] : "Transaction failed";
-        showToast("error", "Buy failed", message);
+        showToast("error", "Buy failed", "Transaction rejected or reverted");
       }
     },
     [address, publicClient, writeContractAsync, queryClient],

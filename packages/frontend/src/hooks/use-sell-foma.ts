@@ -92,10 +92,9 @@ export function useSellFoma() {
           showToast("warning", "Transaction cancelled", "You rejected the transaction");
           return;
         }
+        console.error("Sell failed:", error);
         setStatus("error");
-        const message =
-          error instanceof Error ? error.message.split("\n")[0] : "Transaction failed";
-        showToast("error", "Sell failed", message);
+        showToast("error", "Sell failed", "Transaction rejected or reverted");
       }
     },
     [address, publicClient, writeContractAsync, queryClient],
