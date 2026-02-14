@@ -334,7 +334,7 @@ export async function updateOpenClawConfig(
     id: agentId,
     name: "FoMA Agent",
     workspace: workspacePath,
-    heartbeat: { every: "30m", target: "last" },
+    heartbeat: { every: IS_TESTNET ? "1m" : "30m", target: "last" },
   });
 
   await fs.writeFile(OPENCLAW_JSON, JSON.stringify(config, null, 2), "utf-8");

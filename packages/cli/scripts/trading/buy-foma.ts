@@ -10,6 +10,7 @@ import {
   getPublicClient,
   CONTRACTS,
   NAD_FUN,
+  CHAIN,
   nadFunLensAbi,
   nadFunRouterAbi,
 } from "../lib/contracts.js";
@@ -74,7 +75,9 @@ async function main() {
     process.exit(1);
   }
 
+  const explorer = CHAIN.blockExplorers?.default?.url ?? "https://testnet.monadexplorer.com";
   console.log(`Bought FOMA! tx: ${txHash}`);
+  console.log(`Explorer: ${explorer}/tx/${txHash}`);
 }
 
 main().catch((err) => {

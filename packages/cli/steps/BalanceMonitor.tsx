@@ -105,7 +105,7 @@ export function BalanceMonitor({ address, agentId }: Props) {
         </Box>
         <Box>
           <Text dimColor>{"Explorer:   "}</Text>
-          <Text dimColor>{NETWORK.explorer}/address/{shortAddr}</Text>
+          <Text dimColor>{NETWORK.explorer}/address/{address}</Text>
         </Box>
       </Box>
 
