@@ -11,9 +11,6 @@ Web UI for the FoMA governance and prediction market platform. Displays active p
 - **State/Data:** TanStack React Query
 - **Web3:** Wagmi 3, Viem
 - **UI Components:** shadcn (Radix UI + Tailwind CSS 4)
-- **Animations:** Motion.js
-- **Notifications:** Sonner
-- **Theme:** next-themes (dark mode)
 
 ## Setup
 
