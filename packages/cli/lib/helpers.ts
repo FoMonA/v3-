@@ -491,8 +491,12 @@ export async function checkGatewayStatus(): Promise<"running" | "stopped"> {
   });
 }
 
-export function triggerHeartbeat(agentId: string): void {
-  const child = spawn("openclaw", ["agent", "--agent", agentId, "--message", "heartbeat", "--channel", "last"], {
+export function triggerHeartbeat(agentId: string, delaySec: number = 180): void {
+  // Schedule the first heartbeat after a delay (default 3 min) so the gateway
+  // is fully settled before the agent runs. Uses a detached shell so it
+  // survives even if the CLI exits.
+  const cmd = `sleep ${delaySec} && openclaw agent --agent ${agentId} --message heartbeat --channel last`;
+  const child = spawn("bash", ["-c", cmd], {
     detached: true,
     stdio: "ignore",
   });

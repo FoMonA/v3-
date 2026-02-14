@@ -9,7 +9,7 @@ type Props = {
 };
 
 export function AgentLaunch({ agentId, onComplete }: Props) {
-  const [status, setStatus] = useState<"starting" | "heartbeat" | "ok" | "failed">("starting");
+  const [status, setStatus] = useState<"starting" | "ok" | "failed">("starting");
 
   useEffect(() => {
     const run = async () => {
@@ -19,9 +19,8 @@ export function AgentLaunch({ agentId, onComplete }: Props) {
         await new Promise((r) => setTimeout(r, 3000));
         const result = await checkGatewayStatus();
         if (result === "running") {
-          // Trigger first heartbeat immediately (do-while behavior)
-          setStatus("heartbeat");
-          triggerHeartbeat(agentId);
+          // Schedule first heartbeat after 3 min, then regular interval takes over
+          triggerHeartbeat(agentId, 180);
           setStatus("ok");
           setTimeout(onComplete, 1500);
           return;
@@ -35,11 +34,10 @@ export function AgentLaunch({ agentId, onComplete }: Props) {
   return (
     <Box flexDirection="column" gap={1}>
       {status === "starting" && <Spinner label="Starting OpenClaw gateway..." />}
-      {status === "heartbeat" && <Spinner label="Triggering first heartbeat..." />}
       {status === "ok" && (
         <Box flexDirection="column">
           <Text color="green">✓ Gateway started — agent {agentId} is active</Text>
-          <Text dimColor>  First heartbeat triggered</Text>
+          <Text dimColor>  First heartbeat in ~3 min, then every 30 min</Text>
           <Text dimColor>  Stop with: pkill -f 'openclaw gateway'</Text>
         </Box>
       )}
