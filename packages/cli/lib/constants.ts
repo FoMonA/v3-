@@ -23,7 +23,7 @@ export const OPENCLAW_DIR = path.join(os.homedir(), ".openclaw");
 export const OPENCLAW_JSON = path.join(OPENCLAW_DIR, "openclaw.json");
 
 export const GITHUB_RAW_BASE =
-  "https://raw.githubusercontent.com/FoMonA/v3-/main/packages/cli";
+  "https://raw.githubusercontent.com/FoMonA/v3-/dev/packages/cli";
 
 export const TEMPLATE_FILES = [
   "templates/AGENTS.md",
