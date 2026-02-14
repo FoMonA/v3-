@@ -37,12 +37,12 @@ const mainnet: NetworkConfig = {
   rpcWrite: "https://monad.drpc.org",
   explorer: "https://monadexplorer.com",
   contracts: {
-    foma: (process.env.MAINNET_FOMA_ADDRESS ?? "0x0") as Address,
-    registry: (process.env.MAINNET_REGISTRY_ADDRESS ?? "0x0") as Address,
-    governor: (process.env.MAINNET_GOVERNOR_ADDRESS ?? "0x0") as Address,
-    bettingPool: (process.env.MAINNET_BETTING_POOL_ADDRESS ?? "0x0") as Address,
+    foma: "0xA1F6152e4203F66349d0c0E53D9E50bA2A057777",
+    registry: "0x6d3920cd0A1996a1c34FC238c9446B7e996eAE52",
+    governor: "0x144e0E78D8D29E79075e3640dcC391B0Da81eadB",
+    bettingPool: "0x5C7ec54685cD57416FC4e1ba4deB12474D683a4E",
   },
-  deployBlock: BigInt(process.env.MAINNET_DEPLOY_BLOCK ?? "0"),
+  deployBlock: 55363959n,
 };
 
 const networks: Record<string, NetworkConfig> = { testnet, mainnet };

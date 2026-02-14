@@ -44,11 +44,10 @@ export const NAD_FUN = {
 // ─── FoMA Contracts (populated after deployment) ─────────────────────────────
 
 export const FOMA_CONTRACTS = {
-  // Fill these in after deploying contracts
-  REGISTRY: "" as `0x${string}`,
-  GOVERNOR: "" as `0x${string}`,
-  BETTING_POOL: "" as `0x${string}`,
-  FOMA_TOKEN: "" as `0x${string}`, // nad.fun token address (set after creating token)
+  REGISTRY: "0x6d3920cd0A1996a1c34FC238c9446B7e996eAE52" as `0x${string}`,
+  GOVERNOR: "0x144e0E78D8D29E79075e3640dcC391B0Da81eadB" as `0x${string}`,
+  BETTING_POOL: "0x5C7ec54685cD57416FC4e1ba4deB12474D683a4E" as `0x${string}`,
+  FOMA_TOKEN: "0xA1F6152e4203F66349d0c0E53D9E50bA2A057777" as `0x${string}`,
 } as const;
 
 // ─── Public Client ───────────────────────────────────────────────────────────
