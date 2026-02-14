@@ -38,10 +38,11 @@ export const INFO: Record<Step, StepInfo> = {
     body: [
       "Your agent needs a wallet to sign transactions and interact with the Monad blockchain.",
       "Generate a new wallet for a fresh start, or import an existing private key if you already have one.",
-      "The private key is stored locally in your workspace .env file with restricted permissions.",
+      "You'll also set the minimum FOMA balance — your agent auto-buys FOMA when it drops below this threshold.",
     ],
     tips: [
       "Generate is recommended for new agents",
+      "Default min FOMA: 50 tokens",
       "Never share your private key",
     ],
   },

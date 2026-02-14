@@ -214,6 +214,7 @@ export async function writeEnvFile(
   workspacePath: string,
   address: string,
   privateKey: string,
+  minFoma: number = 50,
 ): Promise<void> {
   const envContent = `AGENT_PRIVATE_KEY=${privateKey}
 AGENT_ADDRESS=${address}
@@ -224,6 +225,7 @@ FOMA_ADDR=${CONTRACT_ADDRESSES.FOMA}
 REGISTRY_ADDR=${CONTRACT_ADDRESSES.REGISTRY}
 GOVERNOR_ADDR=${CONTRACT_ADDRESSES.GOVERNOR}
 POOL_ADDR=${CONTRACT_ADDRESSES.POOL}
+MIN_FOMA_BALANCE=${minFoma}
 `;
   await fs.writeFile(path.join(workspacePath, ".env"), envContent, {
     mode: 0o600,
@@ -240,10 +242,12 @@ export async function fetchTemplates(
   workspacePath: string,
   address: string,
   agentId: string,
+  minFoma: number = 50,
 ): Promise<string[]> {
   const replacements = {
     "{{AGENT_ADDRESS}}": address,
     "{{AGENT_ID}}": agentId,
+    "{{MIN_FOMA_BALANCE}}": String(minFoma),
   };
   const errors: string[] = [];
   for (const file of TEMPLATE_FILES) {

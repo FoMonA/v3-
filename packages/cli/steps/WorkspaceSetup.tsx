@@ -18,6 +18,7 @@ type Props = {
   address: string;
   privateKey: string;
   userId: string;
+  minFoma: number;
   onComplete: (data: { workspacePath: string; agentId: string }) => void;
 };
 
@@ -30,7 +31,7 @@ const INITIAL_TASKS: Task[] = [
   { label: "Update OpenClaw config", status: "pending" },
 ];
 
-export function WorkspaceSetup({ address, privateKey, userId, onComplete }: Props) {
+export function WorkspaceSetup({ address, privateKey, userId, minFoma, onComplete }: Props) {
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const [started, setStarted] = useState(false);
 
@@ -61,7 +62,7 @@ export function WorkspaceSetup({ address, privateKey, userId, onComplete }: Prop
       // 2. Write .env
       updateTask(1, { status: "active" });
       try {
-        await writeEnvFile(workspacePath, address, privateKey);
+        await writeEnvFile(workspacePath, address, privateKey, minFoma);
         updateTask(1, { status: "done" });
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -72,7 +73,7 @@ export function WorkspaceSetup({ address, privateKey, userId, onComplete }: Prop
       // 3. Fetch templates
       updateTask(2, { status: "active" });
       try {
-        const errors = await fetchTemplates(workspacePath, address, agentId);
+        const errors = await fetchTemplates(workspacePath, address, agentId, minFoma);
         await copyRootTemplates(workspacePath);
         if (errors.length > 0) {
           updateTask(2, { status: "done", detail: `${errors.length} warning(s)` });

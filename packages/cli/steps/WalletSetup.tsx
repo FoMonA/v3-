@@ -8,33 +8,41 @@ import {
   generateUserId,
 } from "../lib/helpers.js";
 
-type WalletData = {
+export type WalletData = {
   address: string;
   privateKey: string;
   userId: string;
+  minFoma: number;
 };
 
 type Props = {
   onComplete: (data: WalletData) => void;
 };
 
-type Phase = "choose" | "generating" | "import" | "done";
+type Phase = "choose" | "generating" | "import" | "config" | "done";
 
 export function WalletSetup({ onComplete }: Props) {
   const [phase, setPhase] = useState<Phase>("choose");
-  const [walletData, setWalletData] = useState<WalletData | null>(null);
+  const [wallet, setWallet] = useState<{
+    address: string;
+    privateKey: string;
+    userId: string;
+  } | null>(null);
+  const [minFoma, setMinFoma] = useState<number>(50);
   const [error, setError] = useState<string | null>(null);
+
+  const onWalletReady = (address: string, privateKey: string) => {
+    const userId = generateUserId(address);
+    setWallet({ address, privateKey, userId });
+    setPhase("config");
+  };
 
   const handleChoice = (value: string) => {
     if (value === "generate") {
       setPhase("generating");
       setTimeout(() => {
         const { address, privateKey } = generateWallet();
-        const userId = generateUserId(address);
-        const data = { address, privateKey, userId };
-        setWalletData(data);
-        setPhase("done");
-        setTimeout(() => onComplete(data), 1500);
+        onWalletReady(address, privateKey);
       }, 100);
     } else {
       setPhase("import");
@@ -49,11 +57,26 @@ export function WalletSetup({ onComplete }: Props) {
     }
     setError(null);
     const { address, privateKey } = importWallet(key);
-    const userId = generateUserId(address);
-    const data = { address, privateKey, userId };
-    setWalletData(data);
+    onWalletReady(address, privateKey);
+  };
+
+  const handleMinFoma = (value: string) => {
+    const num = parseInt(value.trim(), 10);
+    if (isNaN(num) || num < 0) {
+      setError("Enter a valid number (e.g. 50)");
+      return;
+    }
+    setError(null);
+    setMinFoma(num);
     setPhase("done");
-    setTimeout(() => onComplete(data), 1500);
+    setTimeout(() => {
+      onComplete({
+        address: wallet!.address,
+        privateKey: wallet!.privateKey,
+        userId: wallet!.userId,
+        minFoma: num,
+      });
+    }, 1000);
   };
 
   return (
@@ -78,19 +101,35 @@ export function WalletSetup({ onComplete }: Props) {
       {phase === "import" && (
         <Box flexDirection="column" gap={1}>
           <Text>Enter your private key (hex):</Text>
+          <TextInput placeholder="0x..." onSubmit={handleImport} />
+          {error && <Text color="red">{error}</Text>}
+        </Box>
+      )}
+
+      {phase === "config" && wallet && (
+        <Box flexDirection="column" gap={1}>
+          <Text color="green">✓ Wallet ready</Text>
+          <Text dimColor>  Address: {wallet.address}</Text>
+          <Text dimColor>  User ID: foma-{wallet.userId}</Text>
+          <Text> </Text>
+          <Text>Minimum FOMA balance to maintain?</Text>
+          <Text dimColor>
+            Your agent auto-buys FOMA when below this threshold.
+          </Text>
           <TextInput
-            placeholder="0x..."
-            onSubmit={handleImport}
+            defaultValue="50"
+            onSubmit={handleMinFoma}
           />
           {error && <Text color="red">{error}</Text>}
         </Box>
       )}
 
-      {phase === "done" && walletData && (
+      {phase === "done" && wallet && (
         <Box flexDirection="column">
           <Text color="green">✓ Wallet ready</Text>
-          <Text dimColor>  Address: {walletData.address}</Text>
-          <Text dimColor>  User ID: foma-{walletData.userId}</Text>
+          <Text dimColor>  Address: {wallet.address}</Text>
+          <Text dimColor>  User ID: foma-{wallet.userId}</Text>
+          <Text dimColor>  Min FOMA: {minFoma}</Text>
         </Box>
       )}
     </Box>

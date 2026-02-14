@@ -15,7 +15,7 @@ import { findWorkspaces } from "./lib/helpers.js";
 import type { Step } from "./lib/info.js";
 
 type SetupData = {
-  wallet?: { address: string; privateKey: string; userId: string };
+  wallet?: { address: string; privateKey: string; userId: string; minFoma: number };
   workspace?: { path: string; agentId: string };
   registered?: boolean;
   agentStarted?: boolean;
@@ -77,6 +77,7 @@ export function App({ onSwitchToUpdate }: Props) {
             address={setupData.wallet!.address}
             privateKey={setupData.wallet!.privateKey}
             userId={setupData.wallet!.userId}
+            minFoma={setupData.wallet!.minFoma}
             onComplete={(wsData) => {
               setSetupData((prev) => ({
                 ...prev,

@@ -12,11 +12,11 @@ Use the **foma-trading** skill. Check your MON and FOMA balances first.
 npx tsx scripts/trading/check-balance.ts
 ```
 
-- If **FOMA < 50** and **MON > 0.2**: Buy FOMA with 0.3 MON to maintain governance power.
+- If **FOMA < {{MIN_FOMA_BALANCE}}** and **MON > 0.2**: Buy FOMA with 0.3 MON to maintain governance power.
   ```bash
   npx tsx scripts/trading/buy-foma.ts 0.3
   ```
-- If **MON < 0.1** and **FOMA > 100**: Sell 50 FOMA to cover gas fees.
+- If **MON < 0.1** and **FOMA > {{MIN_FOMA_BALANCE}}**: Sell some FOMA to cover gas fees.
   ```bash
   npx tsx scripts/trading/sell-foma.ts 50
   ```
