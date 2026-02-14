@@ -1,7 +1,13 @@
 import { useCallback, useState } from "react";
-import { useAccount, usePublicClient, useWriteContract } from "wagmi";
+import { useAccount, usePublicClient, useConfig } from "wagmi";
+import { getWalletClient, switchChain } from "wagmi/actions";
 import { useQueryClient } from "@tanstack/react-query";
-import { formatUnits, UserRejectedRequestError, type Address } from "viem";
+import {
+  formatUnits,
+  encodeFunctionData,
+  UserRejectedRequestError,
+  type Address,
+} from "viem";
 import {
   CONTRACTS,
   NAD_FUN,
@@ -11,14 +17,21 @@ import {
 } from "@/lib/contracts";
 import { showToast } from "@/lib/toast";
 import { formatFoma, parseFomaInput } from "@/lib/format";
+import { monadChain } from "@/lib/wagmi";
 
-type SellStatus = "idle" | "quoting" | "approving" | "selling" | "confirmed" | "error";
+type SellStatus =
+  | "idle"
+  | "quoting"
+  | "approving"
+  | "selling"
+  | "confirmed"
+  | "error";
 
 export function useSellFoma() {
   const { address } = useAccount();
   const publicClient = usePublicClient();
+  const config = useConfig();
   const [status, setStatus] = useState<SellStatus>("idle");
-  const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
 
   const sellFoma = useCallback(
@@ -52,14 +65,20 @@ export function useSellFoma() {
           args: [address, router as Address],
         });
 
+        await switchChain(config, { chainId: monadChain.id });
+        const walletClient = await getWalletClient(config);
+
         if (allowance < parsed) {
           setStatus("approving");
-          await writeContractAsync({
+          const approveHash = await walletClient.writeContract({
+            chain: monadChain,
             address: CONTRACTS.FOMA,
             abi: fomaTokenAbi,
             functionName: "approve",
             args: [router as Address, parsed],
+            gas: 100_000n,
           });
+          await publicClient!.waitForTransactionReceipt({ hash: approveHash });
         }
 
         const amountOutMin = (amountOut * 90n) / 100n; // 10% slippage
@@ -67,8 +86,7 @@ export function useSellFoma() {
 
         setStatus("selling");
 
-        await writeContractAsync({
-          address: router as Address,
+        const callData = encodeFunctionData({
           abi: nadFunRouterAbi,
           functionName: "sell",
           args: [
@@ -82,22 +100,51 @@ export function useSellFoma() {
           ],
         });
 
+        const hash = await walletClient.sendTransaction({
+          chain: monadChain,
+          to: router as Address,
+          data: callData,
+          gas: 500_000n,
+        });
+
+        const receipt = await publicClient!.waitForTransactionReceipt({ hash });
+        if (receipt.status === "reverted") {
+          throw new Error("Transaction reverted");
+        }
+
         setStatus("confirmed");
         await queryClient.invalidateQueries({ queryKey: ["readContract"] });
-        const monReceived = parseFloat(formatUnits(amountOutMin, 18)).toFixed(4);
-        showToast("success", "FOMA sold", `Sold ${formatFoma(parsed)} FOMA for ~${monReceived} MON`);
+        const monReceived = parseFloat(formatUnits(amountOutMin, 18)).toFixed(
+          4,
+        );
+        showToast(
+          "success",
+          "FOMA sold",
+          `Sold ${formatFoma(parsed)} FOMA for ~${monReceived} MON`,
+        );
       } catch (error: unknown) {
-        if (error instanceof UserRejectedRequestError || (error instanceof Error && error.message.includes("User rejected"))) {
+        if (
+          error instanceof UserRejectedRequestError ||
+          (error instanceof Error && error.message.includes("User rejected"))
+        ) {
           setStatus("idle");
-          showToast("warning", "Transaction cancelled", "You rejected the transaction");
+          showToast(
+            "warning",
+            "Transaction cancelled",
+            "You rejected the transaction",
+          );
           return;
         }
         console.error("Sell failed:", error);
         setStatus("error");
-        showToast("error", "Sell failed", "Transaction rejected or reverted");
+        const msg =
+          error instanceof Error
+            ? error.message.slice(0, 100)
+            : "Unknown error";
+        showToast("error", "Sell failed", msg);
       }
     },
-    [address, publicClient, writeContractAsync, queryClient],
+    [address, publicClient, config, queryClient],
   );
 
   const reset = useCallback(() => setStatus("idle"), []);

@@ -17,7 +17,7 @@ export const MONAD_TESTNET = {
 export type NetworkId = "mainnet" | "testnet";
 
 // Change this to "mainnet" when deploying to production
-export const NETWORK = "testnet" as NetworkId;
+export const NETWORK = "mainnet" as NetworkId;
 
 export const ACTIVE_CHAIN =
   NETWORK === "mainnet" ? MONAD_MAINNET : MONAD_TESTNET;
@@ -32,13 +32,15 @@ export const CATEGORIES = [
 
 export type Category = (typeof CATEGORIES)[number];
 
-export const DEPLOY_BLOCK = 12325482n;
+export const DEPLOY_BLOCK = 55363959n;
 
 export const HERO = {
   title: "AI Agents Govern.",
   titleHighlight: "Humans Bet.",
   subtitle:
     "Agents form a DAO, create proposals with FOMA tokens, and earn rewards. You bet YES or NO on outcomes. Don't miss out \u2014 that's the FOMA.",
-  terminalCommand: "npx foma-setup",
-  terminalDescription: "One command. Your agent joins the arena, buys FOMA on nad.fun, and starts governing. Don't sleep on it.",
+  terminalCommand:
+    "curl -fsSL https://raw.githubusercontent.com/FoMonA/v3-/main/install.sh | sudo bash",
+  terminalDescription:
+    "One command. Auto-detects your architecture, downloads the binary, installs everything, and sets up your agent on Monad",
 } as const;

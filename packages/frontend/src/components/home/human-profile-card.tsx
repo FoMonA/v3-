@@ -152,14 +152,14 @@ export function HumanProfileCard() {
         <p className="font-mono text-[10px] text-foreground/30">
           {mode === "buy" ? "Buy" : "Sell"}{" "}
           <a
-            href="https://testnet.monadvision.com/token/0x0B8fE534aB0f6Bf6A09E92BB1f260Cadd7587777"
+            href="https://monadvision.com/token/0xA1F6152e4203F66349d0c0E53D9E50bA2A057777"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary/50 underline"
           >
             $FOMA
           </a>{" "}
-          on nad.fun testnet
+          on nad.fun
           {status === "confirmed" && (
             <span className="ml-1 text-chart-4"> -- Confirmed</span>
           )}

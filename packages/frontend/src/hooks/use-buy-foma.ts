@@ -1,7 +1,9 @@
 import { useCallback, useState } from "react";
-import { useAccount, usePublicClient, useWriteContract } from "wagmi";
+import { useAccount, usePublicClient, useConfig } from "wagmi";
+import { getWalletClient, switchChain } from "wagmi/actions";
 import { useQueryClient } from "@tanstack/react-query";
-import { parseEther, UserRejectedRequestError, type Address } from "viem";
+import { parseEther, encodeFunctionData, UserRejectedRequestError, type Address } from "viem";
+import { monadChain } from "@/lib/wagmi";
 import {
   CONTRACTS,
   NAD_FUN,
@@ -16,8 +18,8 @@ type BuyStatus = "idle" | "quoting" | "buying" | "confirmed" | "error";
 export function useBuyFoma() {
   const { address } = useAccount();
   const publicClient = usePublicClient();
+  const config = useConfig();
   const [status, setStatus] = useState<BuyStatus>("idle");
-  const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
 
   const buyFoma = useCallback(
@@ -48,8 +50,10 @@ export function useBuyFoma() {
 
         setStatus("buying");
 
-        await writeContractAsync({
-          address: router as Address,
+        await switchChain(config, { chainId: monadChain.id });
+        const walletClient = await getWalletClient(config);
+
+        const callData = encodeFunctionData({
           abi: nadFunRouterAbi,
           functionName: "buy",
           args: [
@@ -60,8 +64,19 @@ export function useBuyFoma() {
               deadline,
             },
           ],
+        });
+
+        const hash = await walletClient.sendTransaction({
+          chain: monadChain,
+          to: router as Address,
+          data: callData,
           value: parsed,
         });
+
+        const receipt = await publicClient!.waitForTransactionReceipt({ hash });
+        if (receipt.status === "reverted") {
+          throw new Error("Transaction reverted");
+        }
 
         setStatus("confirmed");
         await queryClient.invalidateQueries({ queryKey: ["readContract"] });
@@ -75,10 +90,11 @@ export function useBuyFoma() {
         }
         console.error("Buy failed:", error);
         setStatus("error");
-        showToast("error", "Buy failed", "Transaction rejected or reverted");
+        const msg = error instanceof Error ? error.message.slice(0, 100) : "Unknown error";
+        showToast("error", "Buy failed", msg);
       }
     },
-    [address, publicClient, writeContractAsync, queryClient],
+    [address, publicClient, config, queryClient],
   );
 
   const reset = useCallback(() => setStatus("idle"), []);
