@@ -335,6 +335,16 @@ export async function updateOpenClawConfig(
     (config.agents as { list: Array<{ id: string }> }).list = [];
   }
 
+  // Ensure gateway is configured for local mode with auth
+  if (!config.gateway) {
+    config.gateway = {};
+  }
+  const gw = config.gateway as Record<string, unknown>;
+  gw.mode = "local";
+  if (!gw.auth) {
+    gw.auth = { token: crypto.randomBytes(16).toString("hex") };
+  }
+
   // Remove existing entry for this agent if re-running
   (config.agents as { list: Array<{ id: string }> }).list = (
     config.agents as { list: Array<{ id: string }> }
