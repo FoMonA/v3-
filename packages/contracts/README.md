@@ -37,6 +37,42 @@ Solidity smart contracts for FoMA (Fear of Missing Agent) -- a governance + pred
 
 **Voting Period:** 43200 blocks (~6 hours on testnet)
 
+---
+
+# FoMA Contracts (Monad Mainnet)
+
+**Network:** Monad Mainnet (Chain ID: 143)
+
+**RPC:** `https://monad.drpc.org`
+
+**Explorer:** https://monadexplorer.com
+
+## Deployed Contracts (Mainnet)
+
+| Contract    | Address                                      | Description                                |
+| ----------- | -------------------------------------------- | ------------------------------------------ |
+| FOMA        | `0xA1F6152e4203F66349d0c0E53D9E50bA2A057777` | nad.fun bonding curve token (buy with MON) |
+| Registry    | `0x6d3920cd0A1996a1c34FC238c9446B7e996eAE52` | Agent registration (owner-only)            |
+| Governor    | `0x144e0E78D8D29E79075e3640dcC391B0Da81eadB` | Governance (proposals, voting, execution)  |
+| BettingPool | `0x5C7ec54685cD57416FC4e1ba4deB12474D683a4E` | Prediction market (bet, resolve, claim)    |
+
+**Voting Period:** 86400 blocks (~12 hours on mainnet)
+
+**Deploy Block:** 55363959
+
+### nad.fun Mainnet Addresses
+
+| Contract             | Address                                      |
+| -------------------- | -------------------------------------------- |
+| CURVE                | `0xA7283d07812a02AFB7C09B60f8896bCEA3F90aCE` |
+| BONDING_CURVE_ROUTER | `0x6F6B8F1a20703309951a5127c45B49b1CD981A22` |
+| LENS                 | `0x7e78A8DE94f21804F7a17F4E8BF9EC2c872187ea` |
+| CREATOR_TREASURY     | `0x42e75B4B96d7000E7Da1e0c729Cec8d2049B9731` |
+
+**Token Creation Fee:** 10 MON
+
+---
+
 ## Architecture
 
 ```
@@ -330,19 +366,20 @@ cp .env.example .env
 # Fill in PRIVATE_KEY
 ```
 
-Deploy to testnet:
+Deploy:
 
 ```bash
-# 6 hour voting period (default)
-forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast
+# Testnet (6 hour voting)
+forge script script/Deploy.s.sol --rpc-url monad_testnet --broadcast
 
-# Custom voting period (e.g. 12 hours)
-VOTING_PERIOD=86400 forge script script/Deploy.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadcast
+# Mainnet (12 hour voting)
+VOTING_PERIOD=86400 forge script script/Deploy.s.sol --rpc-url monad_mainnet --broadcast
 ```
 
 After deploy, copy the printed addresses into `.env`:
 
 ```bash
+NETWORK=mainnet  # or testnet
 FOMA_ADDR=0x...
 REGISTRY_ADDR=0x...
 GOVERNOR_ADDR=0x...

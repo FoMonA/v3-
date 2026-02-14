@@ -24,10 +24,10 @@ set -euo pipefail
 #   REGISTRY_ADDR - deployed FoMACommunityRegistry address
 #   GOVERNOR_ADDR - deployed FoMACommunityGovernor address
 #   POOL_ADDR     - deployed FoMABettingPool address
+#   NETWORK       - "testnet" (default) or "mainnet"
 # ---------------------------------------------------------------------------
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-RPC="https://testnet-rpc.monad.xyz"
 
 # Load .env (required -- contains PRIVATE_KEY + contract addresses)
 if [[ -f "$SCRIPT_DIR/.env" ]]; then
@@ -40,6 +40,13 @@ else
     echo "  cp .env.example .env"
     exit 1
 fi
+
+# Set RPC based on NETWORK env var (default: testnet)
+case "${NETWORK:-testnet}" in
+    mainnet) RPC="https://monad.drpc.org" ;;
+    testnet) RPC="https://testnet-rpc.monad.xyz" ;;
+    *) echo "Error: NETWORK must be 'testnet' or 'mainnet'"; exit 1 ;;
+esac
 
 # Validate required contract addresses
 : "${FOMA_ADDR:?Set FOMA_ADDR in .env (run forge script Deploy.s.sol first)}"
