@@ -27,11 +27,11 @@ export const INFO: Record<Step, StepInfo> = {
   prerequisites: {
     title: "Prerequisites",
     body: [
-      "OpenClaw is a framework for running autonomous AI agents.",
-      "It provides the runtime and heartbeat mechanism — your agent checks in every 30 minutes to vote, propose, and execute.",
-      "Without it, your agent cannot operate.",
+      "Node.js and OpenClaw are required to run your agent.",
+      "Node.js provides the runtime. OpenClaw provides the heartbeat mechanism — your agent checks in every 30 minutes to vote, propose, and execute.",
+      "Both will be installed automatically if missing.",
     ],
-    tips: ["Requires Node.js 18+", "Installed globally via npm"],
+    tips: ["Node.js 20.x via NodeSource", "OpenClaw via npm"],
   },
   wallet: {
     title: "Wallet Setup",

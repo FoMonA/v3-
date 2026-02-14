@@ -25,6 +25,44 @@ export function generateUserId(address: string): string {
     .slice(0, 8);
 }
 
+export function isNodeInstalled(): boolean {
+  try {
+    execSync("node --version", { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function installNode(): boolean {
+  try {
+    // Detect package manager and install Node.js 20.x
+    try {
+      execSync("which apt-get", { stdio: "ignore" });
+      execSync(
+        "curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs",
+        { stdio: "pipe", timeout: 120_000 },
+      );
+      return true;
+    } catch {
+      // Not Debian/Ubuntu, try yum
+    }
+    try {
+      execSync("which yum", { stdio: "ignore" });
+      execSync(
+        "curl -fsSL https://rpm.nodesource.com/setup_20.x | bash - && yum install -y nodejs",
+        { stdio: "pipe", timeout: 120_000 },
+      );
+      return true;
+    } catch {
+      // Not RHEL/CentOS either
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export function isOpenClawInstalled(): boolean {
   try {
     execSync("openclaw --version", { stdio: "ignore" });
@@ -36,7 +74,7 @@ export function isOpenClawInstalled(): boolean {
 
 export function installOpenClaw(): boolean {
   try {
-    execSync("npm install -g openclaw@latest", { stdio: "pipe" });
+    execSync("npm install -g openclaw@latest", { stdio: "pipe", timeout: 120_000 });
     return true;
   } catch {
     return false;

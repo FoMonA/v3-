@@ -1,75 +1,96 @@
 import React, { useState, useEffect } from "react";
 import { Box, Text } from "ink";
-import { ConfirmInput, Spinner } from "@inkjs/ui";
-import { isOpenClawInstalled, installOpenClaw } from "../lib/helpers.js";
+import { TaskList, type Task } from "../components/TaskList.js";
+import {
+  isNodeInstalled,
+  installNode,
+  isOpenClawInstalled,
+  installOpenClaw,
+} from "../lib/helpers.js";
 
 type Props = {
   onComplete: () => void;
 };
 
-type State = "checking" | "installed" | "missing" | "installing" | "installed_now" | "failed";
+const INITIAL_TASKS: Task[] = [
+  { label: "Node.js", status: "pending" },
+  { label: "OpenClaw", status: "pending" },
+];
 
 export function Prerequisites({ onComplete }: Props) {
-  const [state, setState] = useState<State>("checking");
+  const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
+  const [failed, setFailed] = useState(false);
+  const [started, setStarted] = useState(false);
+
+  const updateTask = (index: number, update: Partial<Task>) => {
+    setTasks((prev) => prev.map((t, i) => (i === index ? { ...t, ...update } : t)));
+  };
 
   useEffect(() => {
-    if (isOpenClawInstalled()) {
-      setState("installed");
-      const timer = setTimeout(onComplete, 1000);
-      return () => clearTimeout(timer);
-    } else {
-      setState("missing");
-    }
-  }, []);
+    if (started) return;
+    setStarted(true);
 
-  const handleConfirm = () => {
-    setState("installing");
-    setTimeout(() => {
-      const ok = installOpenClaw();
-      if (ok) {
-        setState("installed_now");
-        setTimeout(onComplete, 1000);
+    const run = async () => {
+      // 1. Check Node.js
+      updateTask(0, { status: "active", label: "Checking Node.js..." });
+
+      if (isNodeInstalled()) {
+        updateTask(0, { status: "done", label: "Node.js" });
       } else {
-        setState("failed");
+        updateTask(0, { status: "active", label: "Installing Node.js..." });
+        // Small delay to let the UI render
+        await new Promise((r) => setTimeout(r, 100));
+        const ok = installNode();
+        if (ok) {
+          updateTask(0, { status: "done", label: "Node.js installed" });
+        } else {
+          updateTask(0, {
+            status: "error",
+            label: "Node.js",
+            detail: "Install manually: https://nodejs.org",
+          });
+          setFailed(true);
+          return;
+        }
       }
-    }, 100);
-  };
 
-  const handleCancel = () => {
-    setState("failed");
-  };
+      // 2. Check OpenClaw
+      updateTask(1, { status: "active", label: "Checking OpenClaw..." });
+
+      if (isOpenClawInstalled()) {
+        updateTask(1, { status: "done", label: "OpenClaw" });
+      } else {
+        updateTask(1, { status: "active", label: "Installing OpenClaw..." });
+        await new Promise((r) => setTimeout(r, 100));
+        const ok = installOpenClaw();
+        if (ok) {
+          updateTask(1, { status: "done", label: "OpenClaw installed" });
+        } else {
+          updateTask(1, {
+            status: "error",
+            label: "OpenClaw",
+            detail: "Run: npm install -g openclaw@latest",
+          });
+          setFailed(true);
+          return;
+        }
+      }
+
+      // All good — advance
+      setTimeout(onComplete, 1000);
+    };
+
+    run();
+  }, []);
 
   return (
     <Box flexDirection="column" gap={1}>
       <Text bold>Checking prerequisites...</Text>
-
-      {state === "checking" && <Spinner label="Checking OpenClaw..." />}
-
-      {state === "installed" && (
-        <Text color="green">✓ OpenClaw is installed</Text>
-      )}
-
-      {state === "missing" && (
-        <Box flexDirection="column" gap={1}>
-          <Text color="yellow">OpenClaw is not installed.</Text>
-          <Box>
-            <Text>Install OpenClaw now? </Text>
-            <ConfirmInput onConfirm={handleConfirm} onCancel={handleCancel} />
-          </Box>
-        </Box>
-      )}
-
-      {state === "installing" && <Spinner label="Installing OpenClaw..." />}
-
-      {state === "installed_now" && (
-        <Text color="green">✓ OpenClaw installed successfully</Text>
-      )}
-
-      {state === "failed" && (
-        <Box flexDirection="column">
-          <Text color="red">✗ OpenClaw is required.</Text>
-          <Text dimColor>Install manually: npm install -g openclaw@latest</Text>
-        </Box>
+      <TaskList tasks={tasks} />
+      {failed && (
+        <Text color="red" dimColor>
+          Fix the above errors and re-run foma-setup.
+        </Text>
       )}
     </Box>
   );
