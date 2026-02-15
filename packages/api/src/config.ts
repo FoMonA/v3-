@@ -6,7 +6,7 @@ function requireEnv(key: string): string {
   return val;
 }
 
-const networkName = (process.env.NETWORK ?? "testnet") as "testnet" | "mainnet";
+const networkName = (process.env.NETWORK ?? "mainnet") as "testnet" | "mainnet";
 
 export const config = {
   network: getNetwork(networkName),

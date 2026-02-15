@@ -46,10 +46,11 @@ export function BettingSection({
     proposalState === ProposalState.Pending;
 
   const isResolved = market.resolved;
+  const isExecuted = proposalState === ProposalState.Executed;
   const isEnded =
     proposalState === ProposalState.Defeated ||
     proposalState === ProposalState.Succeeded ||
-    proposalState === ProposalState.Executed ||
+    isExecuted ||
     proposalState === ProposalState.Expired;
 
   // Derive outcome: market.resolved is authoritative; otherwise infer from proposal state
@@ -81,17 +82,17 @@ export function BettingSection({
         <div className="space-y-1.5">
           {/* Labels row */}
           <div className="flex items-center justify-between">
-            <span className="font-mono text-xs font-bold text-primary">
+            <span className="shrink-0 font-mono text-xs font-bold text-primary">
               YES {yesPercent.toFixed(1)}%
-              <span className="ml-1 text-[10px] font-normal text-primary/70">
+              <span className="ml-1 hidden text-[10px] font-normal text-primary/70 sm:inline">
                 ({formatFoma(market.totalYes)})
               </span>
             </span>
-            <span className="font-mono text-[10px] font-bold text-foreground/50">
-              {formatFoma(totalPool)} FOMA Pool
+            <span className="truncate px-2 font-mono text-[10px] font-bold text-foreground/50">
+              {formatFoma(totalPool)} Pool
             </span>
-            <span className="font-mono text-xs font-medium text-foreground/60">
-              <span className="mr-1 text-[10px] font-normal text-foreground/40">
+            <span className="shrink-0 font-mono text-xs font-medium text-foreground/60">
+              <span className="mr-1 hidden text-[10px] font-normal text-foreground/40 sm:inline">
                 ({formatFoma(market.totalNo)})
               </span>
               {noPercent.toFixed(1)}% NO
@@ -154,7 +155,7 @@ export function BettingSection({
       )}
 
       {/* Resolve button -- when proposal ended, market has bets, but not yet resolved */}
-      {isEnded && hasPool && !isResolved && (
+      {isExecuted && hasPool && !isResolved && (
         <Button
           size="sm"
           disabled={resolveStatus === "resolving"}

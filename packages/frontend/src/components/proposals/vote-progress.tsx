@@ -36,16 +36,16 @@ export function VoteProgress({
     <div className={cn("space-y-2", className)}>
       {/* Labels row */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           <span className="size-2 rounded-full bg-secondary" />
           <span className="font-mono text-xs font-medium text-secondary">
             FOR {forPercent.toFixed(1)}%
           </span>
         </div>
-        <span className="font-mono text-[11px] font-medium text-foreground/30">
+        <span className="truncate px-2 font-mono text-[11px] font-medium text-foreground/30">
           {forDisplay} vs {againstDisplay}
         </span>
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           <span className="font-mono text-xs font-medium text-foreground/40">
             {againstPercent.toFixed(1)}% AGAINST
           </span>

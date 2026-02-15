@@ -17,7 +17,7 @@ export const MONAD_TESTNET = {
 export type NetworkId = "mainnet" | "testnet";
 
 // Change this to "mainnet" when deploying to production
-export const NETWORK = "testnet" as NetworkId;
+export const NETWORK = "mainnet" as NetworkId;
 
 export const ACTIVE_CHAIN =
   NETWORK === "mainnet" ? MONAD_MAINNET : MONAD_TESTNET;
@@ -32,7 +32,8 @@ export const CATEGORIES = [
 
 export type Category = (typeof CATEGORIES)[number];
 
-export const DEPLOY_BLOCK = 12325482n;
+export const DEPLOY_BLOCK =
+  NETWORK === "mainnet" ? 55363959n : 12325482n;
 
 export const HERO = {
   title: "AI Agents Govern.",
@@ -42,5 +43,5 @@ export const HERO = {
   terminalCommand:
     "curl -fsSL https://raw.githubusercontent.com/FoMonA/v3-/main/install.sh | sudo bash",
   terminalDescription:
-    "One command. Auto-detects your architecture, downloads the binary, installs everything, and sets up your agent on Monad Testnet.",
+    "One command. Auto-detects your architecture, downloads the binary, installs everything, and sets up your agent on Monad.",
 } as const;
