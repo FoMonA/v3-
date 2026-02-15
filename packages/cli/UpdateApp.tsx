@@ -17,6 +17,7 @@ import {
   generateUserId,
   updateOpenClawConfig,
   saveApiKey,
+  registerWithApi,
   stopGateway,
   startGateway,
   checkGatewayStatus,
@@ -41,6 +42,7 @@ type Phase =
   | "dashboard";
 
 const INITIAL_TASKS: Task[] = [
+  { label: "Register agent", status: "pending" },
   { label: "Fetch templates", status: "pending" },
   { label: "Fetch scripts", status: "pending" },
   { label: "Copy root templates", status: "pending" },
@@ -54,6 +56,7 @@ export function UpdateApp() {
   const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const [agentAddress, setAgentAddress] = useState("");
+  const [agentPrivateKey, setAgentPrivateKey] = useState("");
   const [agentId, setAgentId] = useState("");
   const [minFoma, setMinFoma] = useState(50);
   const [workspaceNetwork, setWorkspaceNetwork] = useState<string | null>(null);
@@ -95,6 +98,7 @@ export function UpdateApp() {
     try {
       const env = await getWorkspaceEnv(workspacePath);
       setAgentAddress(env.AGENT_ADDRESS || "");
+      setAgentPrivateKey(env.AGENT_PRIVATE_KEY || "");
       if (env.AGENT_ADDRESS) {
         const userId = generateUserId(env.AGENT_ADDRESS);
         setAgentId(`foma-${userId}`);
@@ -177,23 +181,23 @@ export function UpdateApp() {
       // Save minFoma to .env
       await setWorkspaceEnvVar(workspacePath, "MIN_FOMA_BALANCE", String(minFoma));
 
-      // 1. Fetch templates
+      // 1. Register agent with API
       updateTask(0, { status: "active" });
       try {
-        const errors = await fetchTemplates(workspacePath, agentAddress, agentId, minFoma);
+        const regResult = await registerWithApi(agentAddress, agentPrivateKey);
         updateTask(0, {
-          status: "done",
-          detail: errors.length > 0 ? `${errors.length} warning(s)` : undefined,
+          status: regResult.status === "error" ? "error" : "done",
+          detail: regResult.message,
         });
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         updateTask(0, { status: "error", detail: msg });
       }
 
-      // 2. Fetch scripts
+      // 2. Fetch templates
       updateTask(1, { status: "active" });
       try {
-        const errors = await fetchScripts(workspacePath);
+        const errors = await fetchTemplates(workspacePath, agentAddress, agentId, minFoma);
         updateTask(1, {
           status: "done",
           detail: errors.length > 0 ? `${errors.length} warning(s)` : undefined,
@@ -203,29 +207,42 @@ export function UpdateApp() {
         updateTask(1, { status: "error", detail: msg });
       }
 
-      // 3. Copy root templates
+      // 3. Fetch scripts
       updateTask(2, { status: "active" });
       try {
-        await copyRootTemplates(workspacePath);
-        updateTask(2, { status: "done" });
+        const errors = await fetchScripts(workspacePath);
+        updateTask(2, {
+          status: "done",
+          detail: errors.length > 0 ? `${errors.length} warning(s)` : undefined,
+        });
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         updateTask(2, { status: "error", detail: msg });
       }
 
-      // 4. Update OpenClaw config (heartbeat interval, model etc.)
+      // 4. Copy root templates
       updateTask(3, { status: "active" });
       try {
-        const finalModel = pendingModel ?? currentModel ?? undefined;
-        await updateOpenClawConfig(agentId, workspacePath, finalModel);
+        await copyRootTemplates(workspacePath);
         updateTask(3, { status: "done" });
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         updateTask(3, { status: "error", detail: msg });
       }
 
-      // 5. Restart gateway
+      // 5. Update OpenClaw config (heartbeat interval, model etc.)
       updateTask(4, { status: "active" });
+      try {
+        const finalModel = pendingModel ?? currentModel ?? undefined;
+        await updateOpenClawConfig(agentId, workspacePath, finalModel);
+        updateTask(4, { status: "done" });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        updateTask(4, { status: "error", detail: msg });
+      }
+
+      // 6. Restart gateway
+      updateTask(5, { status: "active" });
       stopGateway();
       startGateway();
       // Retry health check — gateway can take a while to start
@@ -239,9 +256,9 @@ export function UpdateApp() {
         }
       }
       if (gwStarted) {
-        updateTask(4, { status: "done" });
+        updateTask(5, { status: "done" });
       } else {
-        updateTask(4, { status: "error", detail: "Gateway failed to start — run: openclaw gateway --force" });
+        updateTask(5, { status: "error", detail: "Gateway failed to start — run: openclaw gateway --force" });
       }
 
       setPhase("done");
