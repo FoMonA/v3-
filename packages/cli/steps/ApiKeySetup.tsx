@@ -71,9 +71,17 @@ export const PROVIDERS: {
     envVar: "OPENROUTER_API_KEY",
     hint: "sk-or-...",
     models: [
-      { label: "Claude Sonnet 4.5 (Recommended)", value: "openrouter/anthropic/claude-sonnet-4-5-20250929" },
+      { label: "Claude 4 Sonnet (Recommended)", value: "openrouter/anthropic/claude-4-sonnet" },
+      { label: "Claude Sonnet 4.5", value: "openrouter/anthropic/claude-sonnet-4-5-20250929" },
       { label: "Gemini 2.5 Pro", value: "openrouter/google/gemini-2.5-pro" },
+      { label: "Gemini 2.5 Flash", value: "openrouter/google/gemini-2.5-flash" },
+      { label: "DeepSeek V3.1", value: "openrouter/deepseek/deepseek-chat-v3.1" },
+      { label: "Grok Code Fast", value: "openrouter/x-ai/grok-code-fast-1" },
+      { label: "Qwen3 Coder 480B", value: "openrouter/qwen/qwen3-coder-480b-a35b-07-25" },
       { label: "Llama 3.3 70B", value: "openrouter/meta-llama/llama-3.3-70b-instruct" },
+      { label: "GPT-OSS 120B (Free)", value: "openrouter/openai/gpt-oss-120b:free" },
+      { label: "Gemini 2.5 Flash (Free)", value: "openrouter/google/gemini-2.5-flash:free" },
+      { label: "DeepSeek V3.2 (Free)", value: "openrouter/deepseek/deepseek-v3.2-20251201:free" },
     ],
   },
 ];
