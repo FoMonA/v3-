@@ -1,7 +1,7 @@
 import path from "path";
 import os from "os";
 
-export const IS_TESTNET = !process.argv.includes("--mainnet");
+export const IS_TESTNET = process.argv.includes("--testnet");
 
 export const NETWORK = IS_TESTNET
   ? {
@@ -67,9 +67,20 @@ export const ROOT_TEMPLATES: Record<string, string> = {
 export const API_URL =
   "http://u00swgokgkso0ssgssoog0c4.89.167.58.81.sslip.io";
 
-export const CONTRACT_ADDRESSES = {
+export const TESTNET_CONTRACT_ADDRESSES = {
   FOMA: "0x0B8fE534aB0f6Bf6A09E92BB1f260Cadd7587777",
   REGISTRY: "0x6782Ac490615F63BaAcED668A5fA4f4D3e250d6a",
   GOVERNOR: "0xb3EDdc787f22E188d3E30319df62cCb6f1bF4693",
   POOL: "0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C",
 };
+
+export const MAINNET_CONTRACT_ADDRESSES = {
+  FOMA: "0xA1F6152e4203F66349d0c0E53D9E50bA2A057777",
+  REGISTRY: "0x6d3920cd0A1996a1c34FC238c9446B7e996eAE52",
+  GOVERNOR: "0x144e0E78D8D29E79075e3640dcC391B0Da81eadB",
+  POOL: "0x5C7ec54685cD57416FC4e1ba4deB12474D683a4E",
+};
+
+export const CONTRACT_ADDRESSES = IS_TESTNET
+  ? TESTNET_CONTRACT_ADDRESSES
+  : MAINNET_CONTRACT_ADDRESSES;

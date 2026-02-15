@@ -13,6 +13,7 @@ import {
   copyRootTemplates,
   getWorkspaceEnv,
   setWorkspaceEnvVar,
+  switchWorkspaceNetwork,
   generateUserId,
   updateOpenClawConfig,
   saveApiKey,
@@ -20,10 +21,10 @@ import {
   startGateway,
   checkGatewayStatus,
 } from "./lib/helpers.js";
-import { OPENCLAW_DIR } from "./lib/constants.js";
+import { OPENCLAW_DIR, IS_TESTNET } from "./lib/constants.js";
 import path from "path";
 
-type Phase = "loading" | "select" | "config" | "apikey" | "updating" | "done" | "dashboard";
+type Phase = "loading" | "select" | "network-switch" | "config" | "apikey" | "updating" | "done" | "dashboard";
 
 const INITIAL_TASKS: Task[] = [
   { label: "Fetch templates", status: "pending" },
@@ -44,6 +45,7 @@ export function UpdateApp() {
   const [existingMinFoma, setExistingMinFoma] = useState<string | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
   const [apiKeyData, setApiKeyData] = useState<ApiKeyData | null>(null);
+  const [workspaceNetwork, setWorkspaceNetwork] = useState<string | null>(null);
   const { exit } = useApp();
 
   useEffect(() => {
@@ -74,6 +76,16 @@ export function UpdateApp() {
       if (env.MIN_FOMA_BALANCE) {
         setExistingMinFoma(env.MIN_FOMA_BALANCE);
         setMinFoma(parseInt(env.MIN_FOMA_BALANCE, 10) || 50);
+      }
+
+      // Detect network mismatch
+      const wsNetwork = env.NETWORK || "testnet";
+      setWorkspaceNetwork(wsNetwork);
+      const cliIsTestnet = IS_TESTNET;
+      const wsIsTestnet = wsNetwork === "testnet";
+      if (cliIsTestnet !== wsIsTestnet) {
+        setPhase("network-switch");
+        return;
       }
     } catch {
       // Continue with defaults
@@ -208,6 +220,39 @@ export function UpdateApp() {
               <Select
                 options={workspaces.map((ws) => ({ label: ws, value: ws }))}
                 onChange={handleSelect}
+              />
+            </Box>
+          )}
+
+          {phase === "network-switch" && (
+            <Box flexDirection="column" gap={1}>
+              <Text dimColor>Workspace: {selectedWorkspace}</Text>
+              <Text color="yellow">
+                Network mismatch detected: workspace is on{" "}
+                <Text bold>{workspaceNetwork === "testnet" ? "Testnet" : "Mainnet"}</Text>
+                , CLI is targeting{" "}
+                <Text bold>{IS_TESTNET ? "Testnet" : "Mainnet"}</Text>.
+              </Text>
+              <Text>Would you like to switch the workspace network?</Text>
+              <Select
+                options={
+                  IS_TESTNET
+                    ? [
+                        { label: "Switch to Testnet", value: "switch" },
+                        { label: `Keep ${workspaceNetwork === "testnet" ? "Testnet" : "Mainnet"}`, value: "keep" },
+                      ]
+                    : [
+                        { label: "Switch to Mainnet (recommended)", value: "switch" },
+                        { label: `Keep ${workspaceNetwork === "testnet" ? "Testnet" : "Mainnet"}`, value: "keep" },
+                      ]
+                }
+                onChange={async (value) => {
+                  if (value === "switch") {
+                    const workspacePath = path.join(OPENCLAW_DIR, selectedWorkspace);
+                    await switchWorkspaceNetwork(workspacePath, IS_TESTNET);
+                  }
+                  setPhase("config");
+                }}
               />
             </Box>
           )}

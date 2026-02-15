@@ -13,6 +13,8 @@ import {
   ROOT_TEMPLATES,
   API_URL,
   CONTRACT_ADDRESSES,
+  TESTNET_CONTRACT_ADDRESSES,
+  MAINNET_CONTRACT_ADDRESSES,
   NETWORK,
   IS_TESTNET,
 } from "./constants.js";
@@ -574,4 +576,21 @@ export async function setWorkspaceEnvVar(
     content = content.trimEnd() + `\n${key}=${value}\n`;
   }
   await fs.writeFile(envPath, content, { mode: 0o600 });
+}
+
+export async function switchWorkspaceNetwork(
+  workspacePath: string,
+  toTestnet: boolean,
+): Promise<void> {
+  const addrs = toTestnet ? TESTNET_CONTRACT_ADDRESSES : MAINNET_CONTRACT_ADDRESSES;
+  const rpc = toTestnet
+    ? "https://monad-testnet.drpc.org"
+    : "https://monad.drpc.org";
+
+  await setWorkspaceEnvVar(workspacePath, "NETWORK", toTestnet ? "testnet" : "mainnet");
+  await setWorkspaceEnvVar(workspacePath, "RPC_URL", rpc);
+  await setWorkspaceEnvVar(workspacePath, "FOMA_ADDR", addrs.FOMA);
+  await setWorkspaceEnvVar(workspacePath, "REGISTRY_ADDR", addrs.REGISTRY);
+  await setWorkspaceEnvVar(workspacePath, "GOVERNOR_ADDR", addrs.GOVERNOR);
+  await setWorkspaceEnvVar(workspacePath, "POOL_ADDR", addrs.POOL);
 }

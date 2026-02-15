@@ -12,8 +12,10 @@ import { Registration } from "./steps/Registration.js";
 import { Summary } from "./steps/Summary.js";
 import { AgentLaunch } from "./steps/AgentLaunch.js";
 import { BalanceMonitor } from "./steps/BalanceMonitor.js";
-import { findWorkspaces, saveApiKey } from "./lib/helpers.js";
+import { findWorkspaces, getWorkspaceEnv, saveApiKey } from "./lib/helpers.js";
+import { OPENCLAW_DIR } from "./lib/constants.js";
 import type { Step } from "./lib/info.js";
+import path from "path";
 
 type SetupData = {
   wallet?: { address: string; privateKey: string; userId: string; minFoma: number };
@@ -31,13 +33,25 @@ export function App({ onSwitchToUpdate }: Props) {
   const [currentStep, setCurrentStep] = useState<Step>("prerequisites");
   const [setupData, setSetupData] = useState<SetupData>({});
   const [existingWorkspaces, setExistingWorkspaces] = useState<string[]>([]);
+  const [workspaceNetworks, setWorkspaceNetworks] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const { exit } = useApp();
 
   useEffect(() => {
-    findWorkspaces().then((workspaces) => {
+    findWorkspaces().then(async (workspaces) => {
       if (workspaces.length > 0) {
         setExistingWorkspaces(workspaces);
+        // Load network info for each workspace
+        const networks: Record<string, string> = {};
+        for (const ws of workspaces) {
+          try {
+            const env = await getWorkspaceEnv(path.join(OPENCLAW_DIR, ws));
+            networks[ws] = env.NETWORK || "testnet";
+          } catch {
+            // Skip if env can't be read
+          }
+        }
+        setWorkspaceNetworks(networks);
         setCurrentStep("existing");
       }
       setLoading(false);
@@ -52,6 +66,7 @@ export function App({ onSwitchToUpdate }: Props) {
         return (
           <ExistingWorkspace
             workspaces={existingWorkspaces}
+            workspaceNetworks={workspaceNetworks}
             onUpdate={() => onSwitchToUpdate?.()}
             onNew={() => setCurrentStep("prerequisites")}
             onCancel={() => exit()}
