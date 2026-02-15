@@ -59,13 +59,12 @@ export function usePlaceBet(proposalId: bigint) {
           `You bet ${yesOrNo ? "YES" : "NO"} on proposal #${proposalId.toString()}`,
         );
       } catch (error: unknown) {
+        console.error("Bet failed:", error);
         setStatus("error");
-        const message =
-          error instanceof Error ? error.message : "Transaction failed";
-        showToast("error", "Bet failed", message);
+        showToast("error", "Bet failed", "Transaction rejected or reverted");
       }
     },
-    [address, rawAllowance, proposalId, writeContractAsync, refetchAllowance],
+    [address, rawAllowance, proposalId, writeContractAsync, refetchAllowance, queryClient],
   );
 
   const reset = useCallback(() => setStatus("idle"), []);

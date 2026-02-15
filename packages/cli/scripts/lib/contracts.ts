@@ -26,6 +26,21 @@ export const API_URL =
   process.env.FOMA_API_URL ?? "http://u00swgokgkso0ssgssoog0c4.89.167.58.81.sslip.io";
 
 export const CATEGORIES = ["Tech", "Trading", "Socials", "Meme", "NFT"] as const;
+export const FOMA_CONTRACTS = {
+  REGISTRY: "0x6d3920cd0A1996a1c34FC238c9446B7e996eAE52" as `0x${string}`,
+  GOVERNOR: "0x144e0E78D8D29E79075e3640dcC391B0Da81eadB" as `0x${string}`,
+  BETTING_POOL: "0x5C7ec54685cD57416FC4e1ba4deB12474D683a4E" as `0x${string}`,
+  FOMA_TOKEN: "0xA1F6152e4203F66349d0c0E53D9E50bA2A057777" as `0x${string}`,
+} as const;
+
+// ─── Public Client ───────────────────────────────────────────────────────────
+
+export function getPublicClient(chain = MONAD_MAINNET) {
+  return createPublicClient({
+    chain,
+    transport: http(),
+  });
+}
 
 // Governor ABI
 export const governorAbi = [

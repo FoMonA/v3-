@@ -1,12 +1,12 @@
 import type { Address } from "viem";
 import { parseAbi } from "viem";
 
-// Deployed contract addresses (Monad Testnet 10143)
+// Deployed contract addresses (Monad Mainnet 143)
 export const CONTRACTS = {
-  FOMA: "0x0B8fE534aB0f6Bf6A09E92BB1f260Cadd7587777" as Address,
-  REGISTRY: "0x6782Ac490615F63BaAcED668A5fA4f4D3e250d6a" as Address,
-  GOVERNOR: "0xb3EDdc787f22E188d3E30319df62cCb6f1bF4693" as Address,
-  POOL: "0x8357034bF4A5B477709d90f3409C511F8Aa5Ec8C" as Address,
+  FOMA: "0xA1F6152e4203F66349d0c0E53D9E50bA2A057777" as Address,
+  REGISTRY: "0x6d3920cd0A1996a1c34FC238c9446B7e996eAE52" as Address,
+  GOVERNOR: "0x144e0E78D8D29E79075e3640dcC391B0Da81eadB" as Address,
+  POOL: "0x5C7ec54685cD57416FC4e1ba4deB12474D683a4E" as Address,
 } as const;
 
 // Parsed ABIs -- useReadContract requires parsed ABI objects, not human-readable strings.
@@ -57,4 +57,18 @@ export const fomaTokenAbi = parseAbi([
   "function symbol() view returns (string)",
   "function decimals() view returns (uint8)",
   "function totalSupply() view returns (uint256)",
+]);
+
+// nad.fun contracts (mainnet)
+export const NAD_FUN = {
+  LENS: "0x7e78A8DE94f21804F7a17F4E8BF9EC2c872187ea" as Address,
+} as const;
+
+export const nadFunLensAbi = parseAbi([
+  "function getAmountOut(address token, uint256 amountIn, bool isBuy) view returns (address router, uint256 amountOut)",
+]);
+
+export const nadFunRouterAbi = parseAbi([
+  "function buy((uint256 amountOutMin, address token, address to, uint256 deadline)) payable",
+  "function sell((uint256 amountIn, uint256 amountOutMin, address token, address to, uint256 deadline))",
 ]);
