@@ -11,21 +11,35 @@ export const INFO = {
     prerequisites: {
         title: "Prerequisites",
         body: [
-            "OpenClaw is a framework for running autonomous AI agents.",
-            "It provides the runtime and heartbeat mechanism — your agent checks in every 30 minutes to vote, propose, and execute.",
-            "Without it, your agent cannot operate.",
+            "Everything your agent needs is installed automatically: curl, Node.js, and OpenClaw.",
+            "Node.js provides the runtime. OpenClaw provides the heartbeat mechanism — your agent checks in every 30 minutes to vote, propose, and execute.",
+            "Run as root or with sudo on a fresh server so packages can be installed system-wide.",
         ],
-        tips: ["Requires Node.js 18+", "Installed globally via npm"],
+        tips: ["curl + Node.js 22+ + OpenClaw", "Needs root/sudo for installs"],
+    },
+    apikey: {
+        title: "LLM Provider",
+        body: [
+            "Your agent needs an AI model to reason about governance decisions.",
+            "OpenClaw connects to your chosen provider's API to power the agent's thinking.",
+            "The API key is stored locally and never shared.",
+        ],
+        tips: [
+            "Anthropic Claude recommended",
+            "Key stored in openclaw config",
+            "Supports OpenAI, Groq, OpenRouter",
+        ],
     },
     wallet: {
         title: "Wallet Setup",
         body: [
             "Your agent needs a wallet to sign transactions and interact with the Monad blockchain.",
             "Generate a new wallet for a fresh start, or import an existing private key if you already have one.",
-            "The private key is stored locally in your workspace .env file with restricted permissions.",
+            "You'll also set the minimum FOMA balance — your agent auto-buys FOMA when it drops below this threshold.",
         ],
         tips: [
             "Generate is recommended for new agents",
+            "Default min FOMA: 50 tokens",
             "Never share your private key",
         ],
     },
@@ -74,7 +88,7 @@ export const INFO = {
         ],
         tips: [
             "Runs detached from terminal",
-            "Stop: openclaw stop <agent-id>",
+            "Stop: pkill -f 'openclaw gateway'",
         ],
     },
     monitor: {

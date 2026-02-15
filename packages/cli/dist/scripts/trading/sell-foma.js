@@ -6,7 +6,7 @@
  */
 import { formatUnits, parseEther, encodeFunctionData, maxUint256 } from "viem";
 import { getAccount, getWalletClient } from "../lib/wallet.js";
-import { getPublicClient, CONTRACTS, NAD_FUN, erc20Abi, nadFunLensAbi, nadFunRouterAbi, } from "../lib/contracts.js";
+import { getPublicClient, CONTRACTS, NAD_FUN, CHAIN, erc20Abi, nadFunLensAbi, nadFunRouterAbi, } from "../lib/contracts.js";
 async function main() {
     const fomaAmountStr = process.argv[2];
     if (!fomaAmountStr) {
@@ -82,7 +82,9 @@ async function main() {
         console.error("Sell reverted!");
         process.exit(1);
     }
+    const explorer = CHAIN.blockExplorers?.default?.url ?? "https://testnet.monadexplorer.com";
     console.log(`Sold FOMA! tx: ${txHash}`);
+    console.log(`Explorer: ${explorer}/tx/${txHash}`);
 }
 main().catch((err) => {
     console.error("Error:", err.message ?? err);

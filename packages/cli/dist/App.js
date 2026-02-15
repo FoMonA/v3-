@@ -6,23 +6,39 @@ import { StepProgress } from "./components/StepProgress.js";
 import { Layout } from "./components/Layout.js";
 import { ExistingWorkspace } from "./steps/ExistingWorkspace.js";
 import { Prerequisites } from "./steps/Prerequisites.js";
+import { ApiKeySetup } from "./steps/ApiKeySetup.js";
 import { WalletSetup } from "./steps/WalletSetup.js";
 import { WorkspaceSetup } from "./steps/WorkspaceSetup.js";
 import { Registration } from "./steps/Registration.js";
 import { Summary } from "./steps/Summary.js";
 import { AgentLaunch } from "./steps/AgentLaunch.js";
 import { BalanceMonitor } from "./steps/BalanceMonitor.js";
-import { findWorkspaces } from "./lib/helpers.js";
+import { findWorkspaces, getWorkspaceEnv, saveApiKey } from "./lib/helpers.js";
+import { OPENCLAW_DIR } from "./lib/constants.js";
+import path from "path";
 export function App({ onSwitchToUpdate }) {
     const [currentStep, setCurrentStep] = useState("prerequisites");
     const [setupData, setSetupData] = useState({});
     const [existingWorkspaces, setExistingWorkspaces] = useState([]);
+    const [workspaceNetworks, setWorkspaceNetworks] = useState({});
     const [loading, setLoading] = useState(true);
     const { exit } = useApp();
     useEffect(() => {
-        findWorkspaces().then((workspaces) => {
+        findWorkspaces().then(async (workspaces) => {
             if (workspaces.length > 0) {
                 setExistingWorkspaces(workspaces);
+                // Load network info for each workspace
+                const networks = {};
+                for (const ws of workspaces) {
+                    try {
+                        const env = await getWorkspaceEnv(path.join(OPENCLAW_DIR, ws));
+                        networks[ws] = env.NETWORK || "testnet";
+                    }
+                    catch {
+                        // Skip if env can't be read
+                    }
+                }
+                setWorkspaceNetworks(networks);
                 setCurrentStep("existing");
             }
             setLoading(false);
@@ -33,16 +49,24 @@ export function App({ onSwitchToUpdate }) {
     const renderStep = () => {
         switch (currentStep) {
             case "existing":
-                return (_jsx(ExistingWorkspace, { workspaces: existingWorkspaces, onUpdate: () => onSwitchToUpdate?.(), onNew: () => setCurrentStep("prerequisites"), onCancel: () => exit() }));
+                return (_jsx(ExistingWorkspace, { workspaces: existingWorkspaces, workspaceNetworks: workspaceNetworks, onUpdate: () => onSwitchToUpdate?.(), onNew: () => setCurrentStep("prerequisites"), onCancel: () => exit() }));
             case "prerequisites":
-                return (_jsx(Prerequisites, { onComplete: () => setCurrentStep("wallet") }));
+                return (_jsx(Prerequisites, { onComplete: () => setCurrentStep("apikey") }));
+            case "apikey":
+                return (_jsx(ApiKeySetup, { onComplete: async (data) => {
+                        if (data.apiKey) {
+                            await saveApiKey(data.envVar, data.apiKey);
+                        }
+                        setSetupData((prev) => ({ ...prev, apiKey: data }));
+                        setCurrentStep("wallet");
+                    } }));
             case "wallet":
                 return (_jsx(WalletSetup, { onComplete: (walletData) => {
                         setSetupData((prev) => ({ ...prev, wallet: walletData }));
                         setCurrentStep("workspace");
                     } }));
             case "workspace":
-                return (_jsx(WorkspaceSetup, { address: setupData.wallet.address, privateKey: setupData.wallet.privateKey, userId: setupData.wallet.userId, onComplete: (wsData) => {
+                return (_jsx(WorkspaceSetup, { address: setupData.wallet.address, privateKey: setupData.wallet.privateKey, userId: setupData.wallet.userId, minFoma: setupData.wallet.minFoma, model: setupData.apiKey?.model, onComplete: (wsData) => {
                         setSetupData((prev) => ({
                             ...prev,
                             workspace: { path: wsData.workspacePath, agentId: wsData.agentId },
@@ -67,7 +91,7 @@ export function App({ onSwitchToUpdate }) {
             case "launch":
                 return (_jsx(AgentLaunch, { agentId: setupData.workspace.agentId, onComplete: () => setCurrentStep("monitor") }));
             case "monitor":
-                return _jsx(BalanceMonitor, { address: setupData.wallet.address });
+                return (_jsx(BalanceMonitor, { address: setupData.wallet.address, agentId: setupData.workspace.agentId }));
             default:
                 return null;
         }

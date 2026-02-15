@@ -1,4 +1,98 @@
 import { type Address } from "viem";
+export declare const MONAD_MAINNET: {
+    blockExplorers: {
+        readonly default: {
+            readonly name: "Monad Explorer";
+            readonly url: "https://monadexplorer.com";
+        };
+    };
+    blockTime?: number | undefined | undefined;
+    contracts?: {
+        [x: string]: import("viem").ChainContract | {
+            [sourceId: number]: import("viem").ChainContract | undefined;
+        } | undefined;
+        ensRegistry?: import("viem").ChainContract | undefined;
+        ensUniversalResolver?: import("viem").ChainContract | undefined;
+        multicall3?: import("viem").ChainContract | undefined;
+        erc6492Verifier?: import("viem").ChainContract | undefined;
+    } | undefined;
+    ensTlds?: readonly string[] | undefined;
+    id: 143;
+    name: "Monad";
+    nativeCurrency: {
+        readonly name: "Monad";
+        readonly symbol: "MON";
+        readonly decimals: 18;
+    };
+    experimental_preconfirmationTime?: number | undefined | undefined;
+    rpcUrls: {
+        readonly default: {
+            readonly http: readonly ["https://monad.drpc.org"];
+        };
+    };
+    sourceId?: number | undefined | undefined;
+    testnet?: boolean | undefined | undefined;
+    custom?: Record<string, unknown> | undefined;
+    extendSchema?: Record<string, unknown> | undefined;
+    fees?: import("viem").ChainFees<undefined> | undefined;
+    formatters?: undefined;
+    prepareTransactionRequest?: ((args: import("viem").PrepareTransactionRequestParameters, options: {
+        phase: "beforeFillTransaction" | "beforeFillParameters" | "afterFillParameters";
+    }) => Promise<import("viem").PrepareTransactionRequestParameters>) | [fn: ((args: import("viem").PrepareTransactionRequestParameters, options: {
+        phase: "beforeFillTransaction" | "beforeFillParameters" | "afterFillParameters";
+    }) => Promise<import("viem").PrepareTransactionRequestParameters>) | undefined, options: {
+        runAt: readonly ("beforeFillTransaction" | "beforeFillParameters" | "afterFillParameters")[];
+    }] | undefined;
+    serializers?: import("viem").ChainSerializers<undefined, import("viem").TransactionSerializable> | undefined;
+    verifyHash?: ((client: import("viem").Client, parameters: import("viem").VerifyHashActionParameters) => Promise<import("viem").VerifyHashActionReturnType>) | undefined;
+};
+export declare const MONAD_TESTNET: {
+    blockExplorers: {
+        readonly default: {
+            readonly name: "Monad Testnet Explorer";
+            readonly url: "https://testnet.monadexplorer.com";
+        };
+    };
+    blockTime?: number | undefined | undefined;
+    contracts?: {
+        [x: string]: import("viem").ChainContract | {
+            [sourceId: number]: import("viem").ChainContract | undefined;
+        } | undefined;
+        ensRegistry?: import("viem").ChainContract | undefined;
+        ensUniversalResolver?: import("viem").ChainContract | undefined;
+        multicall3?: import("viem").ChainContract | undefined;
+        erc6492Verifier?: import("viem").ChainContract | undefined;
+    } | undefined;
+    ensTlds?: readonly string[] | undefined;
+    id: 10143;
+    name: "Monad Testnet";
+    nativeCurrency: {
+        readonly name: "Monad";
+        readonly symbol: "MON";
+        readonly decimals: 18;
+    };
+    experimental_preconfirmationTime?: number | undefined | undefined;
+    rpcUrls: {
+        readonly default: {
+            readonly http: readonly ["https://monad-testnet.drpc.org"];
+        };
+    };
+    sourceId?: number | undefined | undefined;
+    testnet?: boolean | undefined | undefined;
+    custom?: Record<string, unknown> | undefined;
+    extendSchema?: Record<string, unknown> | undefined;
+    fees?: import("viem").ChainFees<undefined> | undefined;
+    formatters?: undefined;
+    prepareTransactionRequest?: ((args: import("viem").PrepareTransactionRequestParameters, options: {
+        phase: "beforeFillTransaction" | "beforeFillParameters" | "afterFillParameters";
+    }) => Promise<import("viem").PrepareTransactionRequestParameters>) | [fn: ((args: import("viem").PrepareTransactionRequestParameters, options: {
+        phase: "beforeFillTransaction" | "beforeFillParameters" | "afterFillParameters";
+    }) => Promise<import("viem").PrepareTransactionRequestParameters>) | undefined, options: {
+        runAt: readonly ("beforeFillTransaction" | "beforeFillParameters" | "afterFillParameters")[];
+    }] | undefined;
+    serializers?: import("viem").ChainSerializers<undefined, import("viem").TransactionSerializable> | undefined;
+    verifyHash?: ((client: import("viem").Client, parameters: import("viem").VerifyHashActionParameters) => Promise<import("viem").VerifyHashActionReturnType>) | undefined;
+};
 export declare const IS_MAINNET: boolean;
 export declare const CHAIN: {
     blockExplorers: {
@@ -21,14 +115,14 @@ export declare const CHAIN: {
     id: 143;
     name: "Monad";
     nativeCurrency: {
-        readonly name: "MON";
+        readonly name: "Monad";
         readonly symbol: "MON";
         readonly decimals: 18;
     };
     experimental_preconfirmationTime?: number | undefined | undefined;
     rpcUrls: {
         readonly default: {
-            readonly http: readonly ["https://rpc.monad.xyz"];
+            readonly http: readonly ["https://monad.drpc.org"];
         };
     };
     sourceId?: number | undefined | undefined;
@@ -49,33 +143,36 @@ export declare const CHAIN: {
 } | {
     blockExplorers: {
         readonly default: {
-            readonly name: "Monad Testnet explorer";
+            readonly name: "Monad Testnet Explorer";
             readonly url: "https://testnet.monadexplorer.com";
         };
     };
-    blockTime: 400;
-    contracts: {
-        readonly multicall3: {
-            readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-            readonly blockCreated: 251449;
-        };
-    };
+    blockTime?: number | undefined | undefined;
+    contracts?: {
+        [x: string]: import("viem").ChainContract | {
+            [sourceId: number]: import("viem").ChainContract | undefined;
+        } | undefined;
+        ensRegistry?: import("viem").ChainContract | undefined;
+        ensUniversalResolver?: import("viem").ChainContract | undefined;
+        multicall3?: import("viem").ChainContract | undefined;
+        erc6492Verifier?: import("viem").ChainContract | undefined;
+    } | undefined;
     ensTlds?: readonly string[] | undefined;
     id: 10143;
     name: "Monad Testnet";
     nativeCurrency: {
-        readonly name: "Testnet MON Token";
+        readonly name: "Monad";
         readonly symbol: "MON";
         readonly decimals: 18;
     };
     experimental_preconfirmationTime?: number | undefined | undefined;
     rpcUrls: {
         readonly default: {
-            readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+            readonly http: readonly ["https://monad-testnet.drpc.org"];
         };
     };
     sourceId?: number | undefined | undefined;
-    testnet: true;
+    testnet?: boolean | undefined | undefined;
     custom?: Record<string, unknown> | undefined;
     extendSchema?: Record<string, unknown> | undefined;
     fees?: import("viem").ChainFees<undefined> | undefined;
@@ -92,13 +189,21 @@ export declare const CHAIN: {
 };
 export declare const RPC_URL: string;
 export declare const CONTRACTS: {
-    readonly FOMA: Address;
-    readonly REGISTRY: Address;
-    readonly GOVERNOR: Address;
-    readonly POOL: Address;
+    FOMA: Address;
+    REGISTRY: Address;
+    GOVERNOR: Address;
+    POOL: Address;
 };
 export declare const API_URL: string;
 export declare const CATEGORIES: readonly ["Tech", "Trading", "Socials", "Meme", "NFT"];
+export declare const NAD_FUN: {
+    BONDING_CURVE_ROUTER: Address;
+    CURVE: Address;
+    DEX_ROUTER: Address;
+    V3_FACTORY: Address;
+    LENS: Address;
+    WMON: Address;
+};
 export declare const governorAbi: readonly [{
     readonly type: "function";
     readonly name: "proposeWithCategory";
@@ -238,9 +343,6 @@ export declare const bettingPoolAbi: readonly [{
     }];
     readonly outputs: readonly [];
 }];
-export declare const NAD_FUN: {
-    LENS: Address;
-};
 export declare const nadFunLensAbi: readonly [{
     readonly type: "function";
     readonly name: "getAmountOut";
@@ -341,14 +443,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -369,33 +471,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -443,14 +548,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -471,33 +576,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -533,14 +641,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -561,33 +669,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -631,14 +742,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -659,33 +770,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -721,14 +835,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -749,33 +863,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -810,14 +927,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -838,33 +955,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -912,7 +1032,6 @@ export declare function getPublicClient(): {
             s: import("viem").Hex;
             value: bigint;
             type: "legacy";
-            to: Address | null;
             yParity?: undefined | undefined;
             from: Address;
             gas: bigint;
@@ -920,6 +1039,7 @@ export declare function getPublicClient(): {
             input: import("viem").Hex;
             nonce: number;
             r: import("viem").Hex;
+            to: Address | null;
             typeHex: import("viem").Hex | null;
             v: bigint;
             accessList?: undefined | undefined;
@@ -937,7 +1057,6 @@ export declare function getPublicClient(): {
             s: import("viem").Hex;
             value: bigint;
             type: "eip2930";
-            to: Address | null;
             yParity: number;
             from: Address;
             gas: bigint;
@@ -945,6 +1064,7 @@ export declare function getPublicClient(): {
             input: import("viem").Hex;
             nonce: number;
             r: import("viem").Hex;
+            to: Address | null;
             typeHex: import("viem").Hex | null;
             v: bigint;
             accessList: import("viem").AccessList;
@@ -962,7 +1082,6 @@ export declare function getPublicClient(): {
             s: import("viem").Hex;
             value: bigint;
             type: "eip1559";
-            to: Address | null;
             yParity: number;
             from: Address;
             gas: bigint;
@@ -970,6 +1089,7 @@ export declare function getPublicClient(): {
             input: import("viem").Hex;
             nonce: number;
             r: import("viem").Hex;
+            to: Address | null;
             typeHex: import("viem").Hex | null;
             v: bigint;
             accessList: import("viem").AccessList;
@@ -987,7 +1107,6 @@ export declare function getPublicClient(): {
             s: import("viem").Hex;
             value: bigint;
             type: "eip4844";
-            to: Address | null;
             yParity: number;
             from: Address;
             gas: bigint;
@@ -995,6 +1114,7 @@ export declare function getPublicClient(): {
             input: import("viem").Hex;
             nonce: number;
             r: import("viem").Hex;
+            to: Address | null;
             typeHex: import("viem").Hex | null;
             v: bigint;
             accessList: import("viem").AccessList;
@@ -1012,7 +1132,6 @@ export declare function getPublicClient(): {
             s: import("viem").Hex;
             value: bigint;
             type: "eip7702";
-            to: Address | null;
             yParity: number;
             from: Address;
             gas: bigint;
@@ -1020,6 +1139,7 @@ export declare function getPublicClient(): {
             input: import("viem").Hex;
             nonce: number;
             r: import("viem").Hex;
+            to: Address | null;
             typeHex: import("viem").Hex | null;
             v: bigint;
             accessList: import("viem").AccessList;
@@ -1069,14 +1189,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -1097,33 +1217,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -1151,7 +1274,6 @@ export declare function getPublicClient(): {
         s: import("viem").Hex;
         value: bigint;
         type: "legacy";
-        to: Address | null;
         yParity?: undefined | undefined;
         from: Address;
         gas: bigint;
@@ -1159,6 +1281,7 @@ export declare function getPublicClient(): {
         input: import("viem").Hex;
         nonce: number;
         r: import("viem").Hex;
+        to: Address | null;
         typeHex: import("viem").Hex | null;
         v: bigint;
         accessList?: undefined | undefined;
@@ -1176,7 +1299,6 @@ export declare function getPublicClient(): {
         s: import("viem").Hex;
         value: bigint;
         type: "eip2930";
-        to: Address | null;
         yParity: number;
         from: Address;
         gas: bigint;
@@ -1184,6 +1306,7 @@ export declare function getPublicClient(): {
         input: import("viem").Hex;
         nonce: number;
         r: import("viem").Hex;
+        to: Address | null;
         typeHex: import("viem").Hex | null;
         v: bigint;
         accessList: import("viem").AccessList;
@@ -1201,7 +1324,6 @@ export declare function getPublicClient(): {
         s: import("viem").Hex;
         value: bigint;
         type: "eip1559";
-        to: Address | null;
         yParity: number;
         from: Address;
         gas: bigint;
@@ -1209,6 +1331,7 @@ export declare function getPublicClient(): {
         input: import("viem").Hex;
         nonce: number;
         r: import("viem").Hex;
+        to: Address | null;
         typeHex: import("viem").Hex | null;
         v: bigint;
         accessList: import("viem").AccessList;
@@ -1226,7 +1349,6 @@ export declare function getPublicClient(): {
         s: import("viem").Hex;
         value: bigint;
         type: "eip4844";
-        to: Address | null;
         yParity: number;
         from: Address;
         gas: bigint;
@@ -1234,6 +1356,7 @@ export declare function getPublicClient(): {
         input: import("viem").Hex;
         nonce: number;
         r: import("viem").Hex;
+        to: Address | null;
         typeHex: import("viem").Hex | null;
         v: bigint;
         accessList: import("viem").AccessList;
@@ -1251,7 +1374,6 @@ export declare function getPublicClient(): {
         s: import("viem").Hex;
         value: bigint;
         type: "eip7702";
-        to: Address | null;
         yParity: number;
         from: Address;
         gas: bigint;
@@ -1259,6 +1381,7 @@ export declare function getPublicClient(): {
         input: import("viem").Hex;
         nonce: number;
         r: import("viem").Hex;
+        to: Address | null;
         typeHex: import("viem").Hex | null;
         v: bigint;
         accessList: import("viem").AccessList;
@@ -1294,14 +1417,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -1322,33 +1445,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -1387,14 +1513,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -1415,33 +1541,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -1476,14 +1605,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -1504,33 +1633,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -1565,14 +1697,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -1593,33 +1725,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -1654,14 +1789,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -1682,33 +1817,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -1743,14 +1881,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -1771,33 +1909,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -5091,14 +5232,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -5119,33 +5260,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -5180,14 +5324,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -5208,33 +5352,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -5285,14 +5432,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -5313,33 +5460,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -5376,14 +5526,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -5404,33 +5554,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -5485,14 +5638,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -5513,33 +5666,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -5574,14 +5730,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -5602,33 +5758,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -5663,14 +5822,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -5691,33 +5850,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -5752,14 +5914,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -5780,33 +5942,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -5841,14 +6006,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -5869,33 +6034,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;
@@ -5930,14 +6098,14 @@ export declare function getPublicClient(): {
         id: 143;
         name: "Monad";
         nativeCurrency: {
-            readonly name: "MON";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://rpc.monad.xyz"];
+                readonly http: readonly ["https://monad.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
@@ -5958,33 +6126,36 @@ export declare function getPublicClient(): {
     } | {
         blockExplorers: {
             readonly default: {
-                readonly name: "Monad Testnet explorer";
+                readonly name: "Monad Testnet Explorer";
                 readonly url: "https://testnet.monadexplorer.com";
             };
         };
-        blockTime: 400;
-        contracts: {
-            readonly multicall3: {
-                readonly address: "0xcA11bde05977b3631167028862bE2a173976CA11";
-                readonly blockCreated: 251449;
-            };
-        };
+        blockTime?: number | undefined | undefined;
+        contracts?: {
+            [x: string]: import("viem").ChainContract | {
+                [sourceId: number]: import("viem").ChainContract | undefined;
+            } | undefined;
+            ensRegistry?: import("viem").ChainContract | undefined;
+            ensUniversalResolver?: import("viem").ChainContract | undefined;
+            multicall3?: import("viem").ChainContract | undefined;
+            erc6492Verifier?: import("viem").ChainContract | undefined;
+        } | undefined;
         ensTlds?: readonly string[] | undefined;
         id: 10143;
         name: "Monad Testnet";
         nativeCurrency: {
-            readonly name: "Testnet MON Token";
+            readonly name: "Monad";
             readonly symbol: "MON";
             readonly decimals: 18;
         };
         experimental_preconfirmationTime?: number | undefined | undefined;
         rpcUrls: {
             readonly default: {
-                readonly http: readonly ["https://testnet-rpc.monad.xyz"];
+                readonly http: readonly ["https://monad-testnet.drpc.org"];
             };
         };
         sourceId?: number | undefined | undefined;
-        testnet: true;
+        testnet?: boolean | undefined | undefined;
         custom?: Record<string, unknown> | undefined;
         extendSchema?: Record<string, unknown> | undefined;
         fees?: import("viem").ChainFees<undefined> | undefined;

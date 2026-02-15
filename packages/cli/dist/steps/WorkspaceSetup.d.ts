@@ -2,10 +2,12 @@ type Props = {
     address: string;
     privateKey: string;
     userId: string;
+    minFoma: number;
+    model?: string;
     onComplete: (data: {
         workspacePath: string;
         agentId: string;
     }) => void;
 };
-export declare function WorkspaceSetup({ address, privateKey, userId, onComplete }: Props): import("react/jsx-runtime").JSX.Element;
+export declare function WorkspaceSetup({ address, privateKey, userId, minFoma, model, onComplete }: Props): import("react/jsx-runtime").JSX.Element;
 export {};

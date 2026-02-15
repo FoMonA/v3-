@@ -13,7 +13,7 @@ const INITIAL_TASKS = [
     { label: "Install script dependencies", status: "pending" },
     { label: "Update OpenClaw config", status: "pending" },
 ];
-export function WorkspaceSetup({ address, privateKey, userId, onComplete }) {
+export function WorkspaceSetup({ address, privateKey, userId, minFoma, model, onComplete }) {
     const [tasks, setTasks] = useState(INITIAL_TASKS);
     const [started, setStarted] = useState(false);
     const agentId = `foma-${userId}`;
@@ -41,7 +41,7 @@ export function WorkspaceSetup({ address, privateKey, userId, onComplete }) {
             // 2. Write .env
             updateTask(1, { status: "active" });
             try {
-                await writeEnvFile(workspacePath, address, privateKey);
+                await writeEnvFile(workspacePath, address, privateKey, minFoma);
                 updateTask(1, { status: "done" });
             }
             catch (err) {
@@ -52,7 +52,7 @@ export function WorkspaceSetup({ address, privateKey, userId, onComplete }) {
             // 3. Fetch templates
             updateTask(2, { status: "active" });
             try {
-                const errors = await fetchTemplates(workspacePath, address, agentId);
+                const errors = await fetchTemplates(workspacePath, address, agentId, minFoma);
                 await copyRootTemplates(workspacePath);
                 if (errors.length > 0) {
                     updateTask(2, { status: "done", detail: `${errors.length} warning(s)` });
@@ -93,7 +93,7 @@ export function WorkspaceSetup({ address, privateKey, userId, onComplete }) {
             // 6. Update openclaw.json
             updateTask(5, { status: "active" });
             try {
-                await updateOpenClawConfig(agentId, workspacePath);
+                await updateOpenClawConfig(agentId, workspacePath, model);
                 updateTask(5, { status: "done" });
             }
             catch (err) {

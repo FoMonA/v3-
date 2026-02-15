@@ -64,8 +64,9 @@ export const ROOT_TEMPLATES: Record<string, string> = {
   "templates/references/API.md": "references/API.md",
 };
 
-export const API_URL =
-  "http://u00swgokgkso0ssgssoog0c4.89.167.58.81.sslip.io";
+export const API_URL = IS_TESTNET
+  ? "https://api-testnet.impressionant.com"
+  : "https://api-mainnet.impressionant.com";
 
 export const TESTNET_CONTRACT_ADDRESSES = {
   FOMA: "0x0B8fE534aB0f6Bf6A09E92BB1f260Cadd7587777",

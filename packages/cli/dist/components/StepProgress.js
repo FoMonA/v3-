@@ -2,6 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Box, Text } from "ink";
 const VISIBLE_STEPS = [
     { key: "prerequisites", label: "Prerequisites" },
+    { key: "apikey", label: "LLM" },
     { key: "wallet", label: "Wallet" },
     { key: "workspace", label: "Workspace" },
     { key: "registration", label: "Register" },
@@ -10,6 +11,7 @@ const VISIBLE_STEPS = [
 const STEP_ORDER = [
     "existing",
     "prerequisites",
+    "apikey",
     "wallet",
     "workspace",
     "registration",

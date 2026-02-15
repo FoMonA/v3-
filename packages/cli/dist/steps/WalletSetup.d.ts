@@ -1,7 +1,8 @@
-type WalletData = {
+export type WalletData = {
     address: string;
     privateKey: string;
     userId: string;
+    minFoma: number;
 };
 type Props = {
     onComplete: (data: WalletData) => void;

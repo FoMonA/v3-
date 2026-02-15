@@ -54,7 +54,10 @@ export const CONTRACTS = IS_MAINNET
     };
 
 export const API_URL =
-  process.env.FOMA_API_URL ?? "http://u00swgokgkso0ssgssoog0c4.89.167.58.81.sslip.io";
+  process.env.FOMA_API_URL ??
+  (IS_MAINNET
+    ? "https://api-mainnet.impressionant.com"
+    : "https://api-testnet.impressionant.com");
 
 export const CATEGORIES = ["Tech", "Trading", "Socials", "Meme", "NFT"] as const;
 

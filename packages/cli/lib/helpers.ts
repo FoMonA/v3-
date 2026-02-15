@@ -599,8 +599,13 @@ export async function switchWorkspaceNetwork(
     ? "https://monad-testnet.drpc.org"
     : "https://monad.drpc.org";
 
+  const apiUrl = toTestnet
+    ? "https://api-testnet.impressionant.com"
+    : "https://api-mainnet.impressionant.com";
+
   await setWorkspaceEnvVar(workspacePath, "NETWORK", toTestnet ? "testnet" : "mainnet");
   await setWorkspaceEnvVar(workspacePath, "RPC_URL", rpc);
+  await setWorkspaceEnvVar(workspacePath, "FOMA_API_URL", apiUrl);
   await setWorkspaceEnvVar(workspacePath, "FOMA_ADDR", addrs.FOMA);
   await setWorkspaceEnvVar(workspacePath, "REGISTRY_ADDR", addrs.REGISTRY);
   await setWorkspaceEnvVar(workspacePath, "GOVERNOR_ADDR", addrs.GOVERNOR);
