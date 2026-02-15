@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Text } from "ink";
 import { Select, TextInput, Spinner } from "@inkjs/ui";
-import { getExistingApiKey } from "../lib/helpers.js";
+import { getExistingApiKey, getExistingModel } from "../lib/helpers.js";
 
 export type LlmProvider = "anthropic" | "openai" | "gemini" | "groq" | "openrouter";
 
@@ -21,58 +21,78 @@ export const PROVIDERS: {
   value: LlmProvider;
   envVar: string;
   hint: string;
-  model: string;
+  models: { label: string; value: string }[];
 }[] = [
   {
     label: "Anthropic (Claude) — Recommended",
     value: "anthropic",
     envVar: "ANTHROPIC_API_KEY",
     hint: "sk-ant-...",
-    model: "anthropic/claude-sonnet-4-5-20250929",
+    models: [
+      { label: "Claude Sonnet 4.5 (Recommended)", value: "anthropic/claude-sonnet-4-5-20250929" },
+      { label: "Claude Opus 4.6", value: "anthropic/claude-opus-4-6" },
+      { label: "Claude Haiku 4.5", value: "anthropic/claude-haiku-4-5-20251001" },
+    ],
   },
   {
     label: "OpenAI (GPT)",
     value: "openai",
     envVar: "OPENAI_API_KEY",
     hint: "sk-...",
-    model: "openai/gpt-4o",
+    models: [
+      { label: "GPT-4o (Recommended)", value: "openai/gpt-4o" },
+      { label: "GPT-4o Mini", value: "openai/gpt-4o-mini" },
+      { label: "o3-mini", value: "openai/o3-mini" },
+    ],
   },
   {
     label: "Google (Gemini)",
     value: "gemini",
     envVar: "GEMINI_API_KEY",
     hint: "AIza...",
-    model: "google/gemini-2.5-pro",
+    models: [
+      { label: "Gemini 2.5 Pro (Recommended)", value: "google/gemini-2.5-pro" },
+      { label: "Gemini 2.5 Flash", value: "google/gemini-2.5-flash" },
+    ],
   },
   {
     label: "Groq",
     value: "groq",
     envVar: "GROQ_API_KEY",
     hint: "gsk_...",
-    model: "groq/llama-3.3-70b-versatile",
+    models: [
+      { label: "Llama 3.3 70B (Recommended)", value: "groq/llama-3.3-70b-versatile" },
+      { label: "DeepSeek R1 Distill 70B", value: "groq/deepseek-r1-distill-llama-70b" },
+    ],
   },
   {
     label: "OpenRouter",
     value: "openrouter",
     envVar: "OPENROUTER_API_KEY",
     hint: "sk-or-...",
-    model: "openrouter/anthropic/claude-sonnet-4-5-20250929",
+    models: [
+      { label: "Claude Sonnet 4.5 (Recommended)", value: "openrouter/anthropic/claude-sonnet-4-5-20250929" },
+      { label: "Gemini 2.5 Pro", value: "openrouter/google/gemini-2.5-pro" },
+      { label: "Llama 3.3 70B", value: "openrouter/meta-llama/llama-3.3-70b-instruct" },
+    ],
   },
 ];
 
-type Phase = "checking" | "detected" | "provider" | "key";
+type Phase = "checking" | "detected" | "provider" | "model" | "key";
 
 export function ApiKeySetup({ onComplete }: Props) {
   const [phase, setPhase] = useState<Phase>("checking");
   const [selected, setSelected] = useState<(typeof PROVIDERS)[number] | null>(null);
-  const [existing, setExisting] = useState<{ provider: (typeof PROVIDERS)[number]; maskedKey: string } | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string>("");
+  const [existing, setExisting] = useState<{ provider: (typeof PROVIDERS)[number]; maskedKey: string; model: string | null } | null>(null);
+  const [keepExistingKey, setKeepExistingKey] = useState(false);
 
   useEffect(() => {
-    getExistingApiKey().then((found) => {
+    Promise.all([getExistingApiKey(), getExistingModel()]).then(([found, existingModel]) => {
       if (found) {
         const provider = PROVIDERS.find((p) => p.envVar === found.envVar);
         if (provider) {
-          setExisting({ provider, maskedKey: found.maskedKey });
+          setExisting({ provider, maskedKey: found.maskedKey, model: existingModel });
           setPhase("detected");
           return;
         }
@@ -84,7 +104,21 @@ export function ApiKeySetup({ onComplete }: Props) {
   const handleProvider = (value: string) => {
     const provider = PROVIDERS.find((p) => p.value === value)!;
     setSelected(provider);
-    setPhase("key");
+    setPhase("model");
+  };
+
+  const handleModel = (value: string) => {
+    setSelectedModel(value);
+    if (keepExistingKey && existing) {
+      onComplete({
+        provider: existing.provider.value,
+        apiKey: "",
+        envVar: existing.provider.envVar,
+        model: value,
+      });
+    } else {
+      setPhase("key");
+    }
   };
 
   const handleKey = (value: string) => {
@@ -94,18 +128,22 @@ export function ApiKeySetup({ onComplete }: Props) {
       provider: selected.value,
       apiKey: trimmed,
       envVar: selected.envVar,
-      model: selected.model,
+      model: selectedModel,
     });
   };
 
   const handleDetectedChoice = (value: string) => {
-    if (value === "keep" && existing) {
+    if (value === "reuse" && existing && existing.model) {
       onComplete({
         provider: existing.provider.value,
         apiKey: "",
         envVar: existing.provider.envVar,
-        model: existing.provider.model,
+        model: existing.model,
       });
+    } else if (value === "keep" && existing) {
+      setKeepExistingKey(true);
+      setSelected(existing.provider);
+      setPhase("model");
     } else {
       setPhase("provider");
     }
@@ -119,13 +157,17 @@ export function ApiKeySetup({ onComplete }: Props) {
 
       {phase === "detected" && existing && (
         <Box flexDirection="column" gap={1}>
-          <Text color="green">API key detected for {existing.provider.label.split("—")[0].trim()}</Text>
+          <Text color="green">Existing OpenClaw config detected</Text>
+          <Text dimColor>Provider: {existing.provider.label.split("—")[0].trim()}</Text>
           <Text dimColor>Key: {existing.maskedKey}</Text>
-          <Text dimColor>Model: {existing.provider.model}</Text>
+          {existing.model && <Text dimColor>Model: {existing.model}</Text>}
           <Text> </Text>
           <Select
             options={[
-              { label: "Keep current API key", value: "keep" },
+              ...(existing.model
+                ? [{ label: "Use existing setup", value: "reuse" }]
+                : []),
+              { label: "Keep key, change model", value: "keep" },
               { label: "Change provider / key", value: "change" },
             ]}
             onChange={handleDetectedChoice}
@@ -143,10 +185,21 @@ export function ApiKeySetup({ onComplete }: Props) {
         </Box>
       )}
 
+      {phase === "model" && selected && (
+        <Box flexDirection="column" gap={1}>
+          <Text dimColor>Provider: {selected.label.split("—")[0].trim()}</Text>
+          <Text>Which model should your agent use?</Text>
+          <Select
+            options={selected.models}
+            onChange={handleModel}
+          />
+        </Box>
+      )}
+
       {phase === "key" && selected && (
         <Box flexDirection="column" gap={1}>
-          <Text dimColor>Provider: {selected.label}</Text>
-          <Text dimColor>Model: {selected.model}</Text>
+          <Text dimColor>Provider: {selected.label.split("—")[0].trim()}</Text>
+          <Text dimColor>Model: {selectedModel}</Text>
           <Text> </Text>
           <Text>Enter your {selected.label.split(" ")[0]} API key:</Text>
           <Text dimColor>Format: {selected.hint}</Text>

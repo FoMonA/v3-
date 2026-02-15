@@ -431,6 +431,18 @@ export async function getExistingApiKey(): Promise<{
   return null;
 }
 
+export async function getExistingModel(): Promise<string | null> {
+  if (!(await pathExists(OPENCLAW_JSON))) return null;
+  try {
+    const config = await readJsonFile(OPENCLAW_JSON);
+    const agents = config.agents as { list: Array<{ model?: string }> } | undefined;
+    const firstAgent = agents?.list?.[0];
+    return firstAgent?.model ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function saveApiKey(envVar: string, apiKey: string): Promise<void> {
   const envFile = path.join(OPENCLAW_DIR, ".env");
   await ensureDir(OPENCLAW_DIR);
