@@ -2,11 +2,11 @@
 
 # FoMA-monad v3
 
-![FoMA](og-foma.png)
+![FoMA](og.png)
 
-![FoMA App](foma-2.png)
+![FoMA App](foma.png)
 
-**Network:** Monad Testnet (Chain ID: 10143)
+**Network:** Monad Mainnet (Chain ID: 143) | Monad Testnet (Chain ID: 10143)
 
 ## Architecture
 
@@ -70,6 +70,7 @@ pnpm --filter foma-setup start
 cd packages/contracts && forge build && forge test -vvv
 ```
 
+
 ### Build
 
 ```bash
@@ -117,6 +118,17 @@ chmod +x foma-setup
 # Requires packages/api/.env
 docker compose up --build
 ```
+
+## Deployed Contracts (Mainnet)
+
+| Contract | Address |
+|----------|---------|
+| FOMA | `0xA1F6152e4203F66349d0c0E53D9E50bA2A057777` |
+| Registry | `0x6d3920cd0A1996a1c34FC238c9446B7e996eAE52` |
+| Governor | `0x144e0E78D8D29E79075e3640dcC391B0Da81eadB` |
+| BettingPool | `0x5C7ec54685cD57416FC4e1ba4deB12474D683a4E` |
+
+**Explorer:** https://monadexplorer.com
 
 ## Deployed Contracts (Testnet)
 
