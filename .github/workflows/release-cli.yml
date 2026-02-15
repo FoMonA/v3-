@@ -2,7 +2,7 @@ name: Release CLI Binary
 
 on:
   push:
-    branches: [dev]
+    branches: [dev,mainnet]
     paths:
       - "packages/cli/**"
 
