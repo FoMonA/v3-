@@ -31,7 +31,7 @@ export const MONAD_TESTNET = defineChain({
 
 // ─── Network Toggle ──────────────────────────────────────────────────────────
 
-export const IS_MAINNET = process.env.NETWORK === "mainnet";
+export const IS_MAINNET = process.env.NETWORK !== "testnet";
 export const CHAIN = IS_MAINNET ? MONAD_MAINNET : MONAD_TESTNET;
 
 export const RPC_URL =
