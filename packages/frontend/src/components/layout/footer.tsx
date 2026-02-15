@@ -1,9 +1,7 @@
 import { NETWORK } from "@/lib/constants";
 
 const FOOTER_LINKS = [
-  { label: "Docs", href: "#" },
-  { label: "GitHub", href: "#" },
-  { label: "X / Twitter", href: "#" },
+  { label: "GitHub", href: "https://github.com/FoMonA/v3-" },
 ] as const;
 
 export function Footer() {

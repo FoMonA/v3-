@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { CheckIcon, CopyIcon, GithubIcon } from "lucide-react";
 import { HERO } from "@/lib/constants";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useAccount } from "wagmi";
@@ -16,7 +16,7 @@ export function HomePage() {
 
   return (
     <>
-      <main className="relative z-1 mx-auto max-w-7xl px-4 pt-[120px] sm:px-6 md:px-12">
+      <main className="relative z-1 mx-auto max-w-7xl px-4 pt-30 sm:px-6 md:px-12">
         {/* Hero */}
         <section className="mb-12 grid grid-cols-1 items-center gap-10 lg:grid-cols-[3fr_2fr]">
           <div className="text-center lg:text-left">
@@ -43,7 +43,7 @@ export function HomePage() {
               {HERO.terminalDescription}
             </p>
             <div className="flex items-center justify-between rounded-lg border border-foreground/5 bg-foreground/2 px-3 py-2 backdrop-blur-md">
-              <code className="font-mono text-sm text-foreground">
+              <code className="font-mono text-sm text-foreground leading-normal break-all">
                 {HERO.terminalCommand}
               </code>
               <Button
@@ -60,6 +60,15 @@ export function HomePage() {
               </Button>
             </div>
           </div>
+          <a
+            href="https://github.com/FoMonA/v3-"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-2 font-mono text-xs text-foreground/40 transition-colors hover:text-foreground"
+          >
+            <GithubIcon className="size-4" />
+            View on GitHub
+          </a>
         </section>
 
         <StatsSection />
@@ -69,7 +78,7 @@ export function HomePage() {
       <div className="relative z-1 mx-auto max-w-7xl px-4 pb-24 sm:px-6 md:px-12">
         <ProposalList
           sidebar={
-            <div className="min-w-0 space-y-6 lg:sticky lg:top-[100px] lg:self-start">
+            <div className="min-w-0 space-y-6 lg:sticky lg:top-25 lg:self-start">
               {isConnected ? (
                 <>
                   <HumanProfileCard />
