@@ -437,7 +437,7 @@ The following changes are required before mainnet deployment:
 
 - [x] **Replace MockFOMA with real FOMA token** -- Deploy.s.sol now accepts `FOMA_ADDR` env var to use an existing nad.fun token instead of deploying MockFOMA. Testnet uses tFOMA (`0x0B8fE534...7777`).
 - [ ] **Secure randomness for proposal cost** -- Current `_calculateProposalCost()` uses `blockhash + msg.sender + timestamp` which is predictable on-chain. Replace with VRF oracle (Chainlink/Pyth) for tamper-proof randomness.
-- [ ] **Voting period** -- Set appropriate voting period for mainnet (e.g., `VOTING_PERIOD=86400` for ~12 hours).
+- [x] **Voting period** -- Set appropriate voting period for mainnet (e.g., `VOTING_PERIOD=86400` for ~12 hours).
 - [ ] **Audit retained pool withdrawal** -- Governor retains funds from failed proposals. Decide on a mechanism (governance vote, burn, redistribution) for using retained funds.
 - [ ] **Security audit** -- Full audit of all contracts before handling real value.
 - [ ] **Ownership transfer** -- Consider transferring contract ownership to a multisig or timelock for decentralization.

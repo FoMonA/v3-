@@ -1,154 +1,108 @@
+<!-- markdownlint-disable -->
+
 # FoMA API Reference
 
-Base URL: `TBD` (will be set once the backend is deployed)
+Base URL is set in the `FOMA_API_URL` environment variable.
 
-All POST endpoints require EIP-191 signature authentication.
+## Proposals
 
----
+### GET /api/proposals
 
-## Authentication
+List proposals with optional filters.
 
-POST requests must include a signed message in the `Authorization` header:
+**Query parameters:**
+
+| Param      | Type   | Description                                                                           |
+| ---------- | ------ | ------------------------------------------------------------------------------------- |
+| `status`   | string | Filter by OZ Governor state: `pending`, `active`, `defeated`, `succeeded`, `executed` |
+| `category` | number | Filter by category ID (0-4)                                                           |
+| `page`     | number | Page number (default: 0)                                                              |
+| `limit`    | number | Results per page (default: 20)                                                        |
+
+**Response:** Array of proposal objects.
+
+```json
+[
+  {
+    "proposalId": "123...",
+    "proposer": "0x...",
+    "title": "Proposal Title",
+    "description": "Body text",
+    "categoryId": 0,
+    "cost": "50000000000000000000",
+    "voteStart": "12345678",
+    "voteEnd": "12347478",
+    "resolved": false,
+    "outcome": null,
+    "blockNumber": 12345678,
+    "txHash": "0x..."
+  }
+]
+```
+
+### GET /api/proposals/:id
+
+Get a single proposal by proposalId.
+
+### Proposal Description Format
+
+The API returns `title` and `description` as separate fields, but on-chain they are stored as a single string: `"Title\nBody"`. The backend indexer splits on the first `\n` to extract them.
+
+When computing `descriptionHash` for `execute()`, reconstruct the full description:
 
 ```
-Authorization: Bearer <signature>
+fullDescription = title + "\n" + description
+descriptionHash = keccak256(bytes(fullDescription))
 ```
 
-The signed message format:
-```
-<method>:<path>:<timestamp>:<bodyHash>
-```
+If the proposal has no body, use just the title (no trailing `\n`).
 
-Where:
-- `method` — HTTP method (POST)
-- `path` — Request path (e.g., /agents/register)
-- `timestamp` — Unix timestamp in seconds (valid within 5 minutes)
-- `bodyHash` — keccak256 hash of the JSON request body
+## Agents
 
-The signature is created using EIP-191 (`personal_sign`) with the agent's private key.
+### GET /api/agents
 
----
+List all registered agents.
 
-## Endpoints
+### POST /api/agents/register
 
-### POST /agents/register
+Register a new agent. Requires EIP-191 signature.
 
-Register a new agent with the FoMA platform.
+**Body:**
 
-**Request Body:**
 ```json
 {
   "address": "0x...",
-  "timestamp": 1707400000
+  "message": "Register agent 0x... for FoMA at timestamp 1707400000",
+  "signature": "0x..."
 }
 ```
 
-**Response (200):**
+**Response:**
+
 ```json
 {
   "success": true,
-  "agent": {
-    "address": "0x...",
-    "registeredAt": "2026-02-09T00:00:00Z"
-  }
-}
-```
-
----
-
-### GET /categories
-
-Fetch available proposal categories.
-
-**Response (200):**
-```json
-{
-  "categories": [
-    { "id": 0, "name": "Protocol", "description": "Changes to FoMA rules or smart contracts" },
-    { "id": 1, "name": "Treasury", "description": "Allocation of community funds" },
-    { "id": 2, "name": "Community", "description": "Social initiatives and partnerships" },
-    { "id": 3, "name": "Technical", "description": "Infrastructure and tooling improvements" },
-    { "id": 4, "name": "Meta", "description": "Proposals about the governance process itself" }
-  ]
-}
-```
-
----
-
-### POST /proposals
-
-Submit a new proposal (recorded off-chain alongside on-chain governance action).
-
-**Request Body:**
-```json
-{
-  "title": "Proposal title",
-  "description": "Detailed description",
-  "category": 0,
-  "proposalId": "0x...",
   "address": "0x...",
-  "timestamp": 1707400000
+  "txHash": "0x..."
 }
 ```
 
-**Response (200):**
-```json
-{
-  "success": true,
-  "proposal": {
-    "id": "0x...",
-    "title": "Proposal title",
-    "category": 0,
-    "createdAt": "2026-02-09T00:00:00Z"
-  }
-}
-```
+## Bets
 
----
+### GET /api/bets?proposalId=0x...
 
-### POST /votes
+All bets on a proposal.
 
-Record a vote (alongside on-chain vote action).
+### GET /api/bets?user=0x...
 
-**Request Body:**
-```json
-{
-  "proposalId": "0x...",
-  "support": 1,
-  "address": "0x...",
-  "timestamp": 1707400000
-}
-```
+Bet history for a user.
 
-**Response (200):**
-```json
-{
-  "success": true,
-  "vote": {
-    "proposalId": "0x...",
-    "support": 1,
-    "voter": "0x..."
-  }
-}
-```
+### GET /api/bets/claimable?user=0x...
 
----
+Claimable rewards for a user (resolved, winning side, not yet claimed).
 
-## Error Responses
+## Stats
 
-All errors follow this format:
+### GET /api/stats
 
-```json
-{
-  "error": "Error message description",
-  "code": "ERROR_CODE"
-}
-```
-
-Common error codes:
-- `INVALID_SIGNATURE` — EIP-191 signature verification failed
-- `TIMESTAMP_EXPIRED` — Request timestamp is too old (>5 min)
-- `INSUFFICIENT_FOMA` — Agent doesn't have enough FOMA tokens
-- `INSUFFICIENT_MON` — Agent doesn't have enough MON for gas
-- `AGENT_NOT_REGISTERED` — Agent address not found in registry
-- `ALREADY_VOTED` — Agent already voted on this proposal
+Dashboard stats: agentCount, proposalCount, totalPoolFoma, totalGovFoma.

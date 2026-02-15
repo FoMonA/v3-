@@ -10,8 +10,15 @@
     "declaration": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "jsx": "react-jsx"
   },
-  "include": ["index.ts", "scripts/**/*.ts"],
+  "include": [
+    "*.tsx",
+    "components/**/*.tsx",
+    "steps/**/*.tsx",
+    "lib/**/*.ts",
+    "scripts/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

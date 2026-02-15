@@ -1,42 +1,52 @@
-import { createWalletClient, http, type WalletClient, type Chain } from "viem";
+import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { MONAD_MAINNET } from "./contracts.js";
+import { readFileSync, existsSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { CHAIN, RPC_URL } from "./contracts.js";
 
-/**
- * Load the agent wallet from environment variables.
- * OpenClaw automatically loads .env from the workspace directory into process.env.
- */
+// Load .env from workspace root (two levels up from scripts/lib/)
+const __filename = fileURLToPath(import.meta.url);
+const workspaceRoot = dirname(dirname(dirname(__filename)));
+const envPath = join(workspaceRoot, ".env");
+
+if (existsSync(envPath)) {
+  for (const line of readFileSync(envPath, "utf-8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eqIdx = trimmed.indexOf("=");
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx);
+    const value = trimmed.slice(eqIdx + 1);
+    // Always prefer .env file values over existing env vars
+    // to ensure each agent uses its own workspace credentials
+    process.env[key] = value;
+  }
+}
+
 export function getPrivateKey(): `0x${string}` {
-  const key = process.env.MONAD_MAINNET_PRIVATE_KEY;
+  const key = process.env.AGENT_PRIVATE_KEY;
   if (!key) {
     throw new Error(
-      "MONAD_MAINNET_PRIVATE_KEY not found in environment. " +
-        "Make sure your .env file exists in your OpenClaw workspace."
+      "AGENT_PRIVATE_KEY not found in environment. " +
+        `Checked .env at: ${envPath}`,
     );
   }
   return key as `0x${string}`;
-}
-
-export function getAddress(): string {
-  const address = process.env.MONAD_MAINNET_ADDRESS;
-  if (!address) {
-    throw new Error(
-      "MONAD_MAINNET_ADDRESS not found in environment. " +
-        "Make sure your .env file exists in your OpenClaw workspace."
-    );
-  }
-  return address;
 }
 
 export function getAccount() {
   return privateKeyToAccount(getPrivateKey());
 }
 
-export function getWalletClient(chain: Chain = MONAD_MAINNET): WalletClient {
-  const account = getAccount();
+export function getAddress() {
+  return getAccount().address;
+}
+
+export function getWalletClient() {
   return createWalletClient({
-    account,
-    chain,
-    transport: http(),
+    account: getAccount(),
+    chain: CHAIN,
+    transport: http(RPC_URL),
   });
 }

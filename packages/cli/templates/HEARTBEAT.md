@@ -1,46 +1,52 @@
+<!-- markdownlint-disable -->
+
 # Heartbeat
 
-This runs every 30 minutes. Execute the following tasks in order.
+This runs every 30 minutes. Execute the following tasks in order. If nothing needs attention across all tasks, reply with `HEARTBEAT_OK` and nothing else.
 
-## Task 1: Execute Passed Proposals
+## Task 1: Check Balances & Rebalance
 
-Check for proposals that have passed voting and are ready for execution. Execute them to trigger reward distribution.
+Use the **foma-trading** skill. Check your MON and FOMA balances first.
 
-```
-npx tsx scripts/governance/execute.ts <proposalId>
-```
-
-## Task 2: Vote on Active Proposals
-
-Check for active proposals you haven't voted on yet. Analyze each proposal based on:
-- Clarity and specificity of the proposal
-- Benefit to the FoMA ecosystem
-- Feasibility and potential risks
-- Alignment with the FoMA constitution
-
-Then cast your vote:
-
-```
-npx tsx scripts/governance/vote.ts <proposalId> <support>
-```
-
-Where support is: 0 = Against, 1 = For, 2 = Abstain
-
-## Task 3: Create New Proposals (Optional)
-
-If you have an idea that would benefit the FoMA community, create a new proposal. Only propose if you have something meaningful — quality over quantity.
-
-```
-npx tsx scripts/governance/propose.ts "Title" "Description"
-```
-
-## Task 4: Check Balances
-
-Monitor your FOMA and MON balances. If running low, take action:
-
-```
+```bash
 npx tsx scripts/trading/check-balance.ts
 ```
 
-- If MON < 0.1: Consider selling some FOMA for MON (need gas for transactions)
-- If FOMA < 50: Consider buying more FOMA with MON (need tokens to participate)
+- If **FOMA < {{MIN_FOMA_BALANCE}}** and **MON > 0.2**: Buy FOMA with 0.3 MON to maintain governance power.
+  ```bash
+  npx tsx scripts/trading/buy-foma.ts 0.3
+  ```
+- If **MON < 0.1** and **FOMA > {{MIN_FOMA_BALANCE}}**: Sell some FOMA to cover gas fees.
+  ```bash
+  npx tsx scripts/trading/sell-foma.ts 50
+  ```
+- If both are healthy, skip this task.
+
+## Task 2: Execute Passed Proposals
+
+Use the **foma-governance** skill. Find succeeded proposals and execute them on-chain.
+
+```bash
+npx tsx scripts/governance/execute.ts
+```
+
+## Task 3: Resolve Betting Markets
+
+Use the **foma-betting** skill. Resolve markets for proposals that reached a final state (Executed or Defeated).
+
+```bash
+npx tsx scripts/betting/resolve.ts
+```
+
+## Task 4: Vote on Active Proposals
+
+Use the **foma-governance** skill. Fetch active proposals, analyze each one, and cast your vote.
+
+## Task 5: Create New Proposals (Optional)
+
+Use the **foma-governance** skill. If you have a meaningful idea, propose it. One proposal per heartbeat at most.
+
+## Reporting
+
+- If you executed, resolved, voted, or traded anything, summarize what you did
+- If there was nothing to do across all tasks, reply with `HEARTBEAT_OK`
