@@ -93,7 +93,6 @@ export function ApiKeySetup({ onComplete }: Props) {
   const [selected, setSelected] = useState<(typeof PROVIDERS)[number] | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [existing, setExisting] = useState<{ provider: (typeof PROVIDERS)[number]; maskedKey: string; model: string | null } | null>(null);
-  const [keepExistingKey, setKeepExistingKey] = useState(false);
 
   useEffect(() => {
     Promise.all([getExistingApiKey(), getExistingModel()]).then(([found, existingModel]) => {
@@ -117,16 +116,7 @@ export function ApiKeySetup({ onComplete }: Props) {
 
   const handleModel = (value: string) => {
     setSelectedModel(value);
-    if (keepExistingKey && existing) {
-      onComplete({
-        provider: existing.provider.value,
-        apiKey: "",
-        envVar: existing.provider.envVar,
-        model: value,
-      });
-    } else {
-      setPhase("key");
-    }
+    setPhase("key");
   };
 
   const handleKey = (value: string) => {
@@ -141,22 +131,16 @@ export function ApiKeySetup({ onComplete }: Props) {
   };
 
   const handleDetectedChoice = (value: string) => {
-    if (value === "reuse" && existing && existing.model) {
+    if (value === "reuse" && existing) {
+      // Use OpenClaw settings — no agent-specific model override
       onComplete({
         provider: existing.provider.value,
         apiKey: "",
         envVar: existing.provider.envVar,
-        model: existing.model,
+        model: "",
       });
-    } else if (value === "keep" && existing) {
-      setKeepExistingKey(true);
-      setSelected(existing.provider);
-      setPhase("model");
-    } else if (value === "rekey" && existing) {
-      setSelected(existing.provider);
-      setSelectedModel(existing.model ?? existing.provider.models[0].value);
-      setPhase("key");
     } else {
+      // Configure specifically for this agent
       setPhase("provider");
     }
   };
@@ -176,12 +160,8 @@ export function ApiKeySetup({ onComplete }: Props) {
           <Text> </Text>
           <Select
             options={[
-              ...(existing.model
-                ? [{ label: "Use existing setup", value: "reuse" }]
-                : []),
-              { label: "Keep key, change model", value: "keep" },
-              { label: "Change key only", value: "rekey" },
-              { label: "Change provider / key", value: "change" },
+              { label: "Use OpenClaw settings", value: "reuse" },
+              { label: "Configure specifically for this agent", value: "configure" },
             ]}
             onChange={handleDetectedChoice}
           />
@@ -203,10 +183,7 @@ export function ApiKeySetup({ onComplete }: Props) {
           <Text dimColor>Provider: {selected.label.split("—")[0].trim()}</Text>
           <Text>Which model should your agent use?</Text>
           <Select
-            options={[
-              { label: "Use default (underlying agent model)", value: "" },
-              ...selected.models,
-            ]}
+            options={selected.models}
             onChange={handleModel}
           />
         </Box>
