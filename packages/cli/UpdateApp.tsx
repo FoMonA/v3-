@@ -233,7 +233,7 @@ export function UpdateApp() {
       // 5. Update OpenClaw config (heartbeat interval, model etc.)
       updateTask(4, { status: "active" });
       try {
-        const finalModel = pendingModel ?? currentModel ?? undefined;
+        const finalModel = pendingModel !== null ? (pendingModel || undefined) : (currentModel ?? undefined);
         await updateOpenClawConfig(agentId, workspacePath, finalModel);
         updateTask(4, { status: "done" });
       } catch (err: unknown) {
@@ -398,7 +398,10 @@ export function UpdateApp() {
               <Text> </Text>
               <Text>Which model should your agent use?</Text>
               <Select
-                options={changeProvider.models}
+                options={[
+                  { label: "Use default (underlying agent model)", value: "" },
+                  ...changeProvider.models,
+                ]}
                 onChange={(value) => {
                   setPendingModel(value);
                   setChangeProvider(null);

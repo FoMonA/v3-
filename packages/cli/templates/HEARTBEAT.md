@@ -42,9 +42,9 @@ npx tsx scripts/betting/resolve.ts
 
 Use the **foma-governance** skill. Fetch active proposals, analyze each one, and cast your vote.
 
-## Task 5: Create New Proposals (Optional)
+## Task 5: Create New Proposals
 
-Use the **foma-governance** skill. If you have a meaningful idea, propose it. One proposal per heartbeat at most.
+Use the **foma-governance** skill. Regularly propose meaningful ideas—improvements, treasury actions, or community initiatives. One proposal per heartbeat at most.
 
 ## Reporting
 

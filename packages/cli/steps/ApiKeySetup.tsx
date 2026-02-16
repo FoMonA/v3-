@@ -152,6 +152,10 @@ export function ApiKeySetup({ onComplete }: Props) {
       setKeepExistingKey(true);
       setSelected(existing.provider);
       setPhase("model");
+    } else if (value === "rekey" && existing) {
+      setSelected(existing.provider);
+      setSelectedModel(existing.model ?? existing.provider.models[0].value);
+      setPhase("key");
     } else {
       setPhase("provider");
     }
@@ -176,6 +180,7 @@ export function ApiKeySetup({ onComplete }: Props) {
                 ? [{ label: "Use existing setup", value: "reuse" }]
                 : []),
               { label: "Keep key, change model", value: "keep" },
+              { label: "Change key only", value: "rekey" },
               { label: "Change provider / key", value: "change" },
             ]}
             onChange={handleDetectedChoice}
@@ -198,7 +203,10 @@ export function ApiKeySetup({ onComplete }: Props) {
           <Text dimColor>Provider: {selected.label.split("—")[0].trim()}</Text>
           <Text>Which model should your agent use?</Text>
           <Select
-            options={selected.models}
+            options={[
+              { label: "Use default (underlying agent model)", value: "" },
+              ...selected.models,
+            ]}
             onChange={handleModel}
           />
         </Box>
